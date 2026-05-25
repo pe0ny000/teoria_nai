@@ -197,10 +197,15 @@
     </div>
   </div>
   <div class="learn-done" id="learn-done" style="display:none">
-    <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
-    <h2>Koniec!</h2>
+    <div style="font-size:3rem;margin-bottom:1rem" id="learn-done-emoji">🎉</div>
+    <h2>Koniec sesji!</h2>
     <p id="learn-done-stats" style="margin-top:0.5rem"></p>
-    <button class="btn btn-primary" style="margin-top:1.5rem" onclick="learnRestart()">Zacznij od nowa</button>
+    <div id="learn-done-memory" style="margin-top:1rem;font-family:var(--mono);font-size:0.65rem;color:var(--muted)"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="learnRestart()">Wszystkie pytania</button>
+      <button class="btn btn-wrong" id="btn-only-weak" onclick="learnRestartWeak()">Tylko nie umiem</button>
+      <button class="btn btn-ghost" onclick="lsReset()">Resetuj pamięć</button>
+    </div>
   </div>
 </div>
 
@@ -282,9 +287,9 @@ var data = [
   ]},
   { id:"s2", icon:"🔌", title:"Perceptron — budowa, wagi, ograniczenia", qs:[
     { q:"Czym jest perceptron i z czego jest zbudowany?",
-      a:"Model pojedynczego neuronu. Sklada sie z: wektora wejsc X=(x1..xn), wektora wag W=(w1..wn), progu aktywacji Theta, funkcji aktywacji.<div class='formula'>y = 1 gdy W*X >= Theta, inaczej y = 0</div>" },
+      a:"Model pojedynczego neuronu. Sklada sie z: wektora wejsc X=(x1..xn), wektora wag W=(w1..wn), progu aktywacji Theta, funkcji aktywacji.<div class='formula'>y = 1 gdy W*X >= Theta, inaczej y = 0</div><svg viewBox='0 0 420 200' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:420px;display:block;margin:0.75rem auto'><rect width='420' height='200' fill='#0a0a0c' rx='10'/><circle cx='60' cy='60' r='16' fill='none' stroke='#6eaaff' stroke-width='1.5'/><text x='60' y='65' text-anchor='middle' fill='#6eaaff' font-size='11' font-family='monospace'>x1</text><circle cx='60' cy='100' r='16' fill='none' stroke='#6eaaff' stroke-width='1.5'/><text x='60' y='105' text-anchor='middle' fill='#6eaaff' font-size='11' font-family='monospace'>x2</text><circle cx='60' cy='140' r='16' fill='none' stroke='#6eaaff' stroke-width='1.5'/><text x='60' y='145' text-anchor='middle' fill='#6eaaff' font-size='11' font-family='monospace'>x3</text><text x='76' y='73' fill='#ffcc6e' font-size='10' font-family='monospace'>w1</text><text x='76' y='108' fill='#ffcc6e' font-size='10' font-family='monospace'>w2</text><text x='76' y='148' fill='#ffcc6e' font-size='10' font-family='monospace'>w3</text><line x1='76' y1='63' x2='174' y2='95' stroke='#ffcc6e' stroke-width='1.2'/><line x1='76' y1='100' x2='174' y2='100' stroke='#ffcc6e' stroke-width='1.2'/><line x1='76' y1='137' x2='174' y2='105' stroke='#ffcc6e' stroke-width='1.2'/><circle cx='200' cy='100' r='26' fill='#1a1a2e' stroke='#7fff6e' stroke-width='2'/><text x='200' y='97' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>Σ≥Θ</text><text x='200' y='110' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>f(net)</text><line x1='226' y1='100' x2='290' y2='100' stroke='#7fff6e' stroke-width='2'/><polygon points='290,94 304,100 290,106' fill='#7fff6e'/><circle cx='330' cy='100' r='20' fill='#1a1a2e' stroke='#cf6eff' stroke-width='1.5'/><text x='330' y='105' text-anchor='middle' fill='#cf6eff' font-size='11' font-family='monospace'>y</text><text x='60' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>wejscia</text><text x='200' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>neuron</text><text x='330' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>wyjscie</text><text x='200' y='20' text-anchor='middle' fill='#7a7a90' font-size='10' font-family='monospace'>Θ = prog aktywacji</text></svg>" },
     { q:"Interpretacja geometryczna perceptronu",
-      a:"Wektor wag W jest wektorem normalnym do hiperplaszczyzny decyzyjnej, ktora rozgranicza klasy. Prog Theta wyznacza jak daleko hiperplaszczyzna jest odsunieta od poczatku ukladu. Perceptron aktywuje sie gdy X jest po tej samej stronie hiperplaszczyzny co W." },
+      a:"Wektor wag W jest wektorem normalnym do hiperplaszczyzny decyzyjnej, ktora rozgranicza klasy. Prog Theta wyznacza jak daleko hiperplaszczyzna jest odsunieta od poczatku ukladu. Perceptron aktywuje sie gdy X jest po tej samej stronie hiperplaszczyzny co W.<svg viewBox='0 0 340 220' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:340px;display:block;margin:0.75rem auto'><rect width='340' height='220' fill='#0a0a0c' rx='10'/><line x1='30' y1='190' x2='310' y2='190' stroke='#2a2a35' stroke-width='1'/><line x1='30' y1='190' x2='30' y2='20' stroke='#2a2a35' stroke-width='1'/><text x='315' y='194' fill='#7a7a90' font-size='10' font-family='monospace'>x1</text><text x='22' y='16' fill='#7a7a90' font-size='10' font-family='monospace'>x2</text><line x1='50' y1='170' x2='280' y2='50' stroke='#7fff6e' stroke-width='2'/><text x='285' y='46' fill='#7fff6e' font-size='9' font-family='monospace'>W·X=Θ</text><circle cx='80' cy='80' r='7' fill='#6eaaff'/><circle cx='110' cy='60' r='7' fill='#6eaaff'/><circle cx='90' cy='50' r='7' fill='#6eaaff'/><circle cx='130' cy='70' r='7' fill='#6eaaff'/><circle cx='200' cy='150' r='7' fill='#ff6e7f'/><circle cx='240' cy='160' r='7' fill='#ff6e7f'/><circle cx='220' cy='140' r='7' fill='#ff6e7f'/><circle cx='260' cy='170' r='7' fill='#ff6e7f'/><text x='75' y='40' fill='#6eaaff' font-size='9' font-family='monospace'>y=1</text><text x='220' y='185' fill='#ff6e7f' font-size='9' font-family='monospace'>y=0</text><line x1='155' y1='110' x2='195' y2='75' stroke='#ffcc6e' stroke-width='1.5' stroke-dasharray='3,2'/><polygon points='192,68 202,78 188,80' fill='#ffcc6e'/><text x='200' y='70' fill='#ffcc6e' font-size='9' font-family='monospace'>W</text></svg>" },
     { q:"Jakie sa ograniczenia pojedynczego perceptronu?",
       a:"Rozdziela tylko klasy liniowo separowalne — dajace sie rozdzielic hiperplaszczyzna. XOR nie jest liniowo separowalny — perceptron go nie nauczy. AND i OR — tak." },
     { q:"Regula Delta — wzor na aktualizacje wag",
@@ -300,7 +305,7 @@ var data = [
     { q:"Do czego sluzy funkcja aktywacji? Podaj przyklady (nazwa + wzor)",
       a:"Okresla jak wyjscie neuronu zalezy od sumy wazonej wejsc (net). Wprowadza nieliniowosci.<div class='formula'>Signum:       y = sign(net)  => {-1, 1}\nProgowa:      y = 1 jesli net > 0, else 0\nSigmoidalna:  y = 1 / (1 + e^(-net))\nLiniowa:      y = net</div>" },
     { q:"Czym jest macierz pomylek i do czego sluzy?",
-      a:"Pokazuje ile przypadkow zostalo prawidlowo/nieprawidlowo sklasyfikowanych dla kazdej kombinacji klasy rzeczywistej i przewidywanej. Umozliwia obliczenie precyzji, pelnosci i F-miary. Dziala dla dowolnej liczby klas." },
+      a:"Pokazuje ile przypadkow zostalo prawidlowo/nieprawidlowo sklasyfikowanych dla kazdej kombinacji klasy rzeczywistej i przewidywanej. Umozliwia obliczenie precyzji, pelnosci i F-miary. Dziala dla dowolnej liczby klas.<svg viewBox='0 0 340 200' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:340px;display:block;margin:0.75rem auto'><rect width='340' height='200' fill='#0a0a0c' rx='10'/><text x='170' y='22' text-anchor='middle' fill='#7a7a90' font-size='10' font-family='monospace'>Przewidziana klasa</text><text x='22' y='110' text-anchor='middle' fill='#7a7a90' font-size='10' font-family='monospace' transform='rotate(-90,22,110)'>Rzeczywista</text><text x='170' y='50' text-anchor='middle' fill='#6eaaff' font-size='10' font-family='monospace'>POS</text><text x='260' y='50' text-anchor='middle' fill='#6eaaff' font-size='10' font-family='monospace'>NEG</text><text x='75' y='100' text-anchor='middle' fill='#6eaaff' font-size='10' font-family='monospace'>POS</text><text x='75' y='150' text-anchor='middle' fill='#6eaaff' font-size='10' font-family='monospace'>NEG</text><rect x='110' y='60' width='100' height='60' fill='rgba(127,255,110,0.12)' stroke='#7fff6e' stroke-width='1.5' rx='4'/><text x='160' y='86' text-anchor='middle' fill='#7fff6e' font-size='13' font-family='monospace' font-weight='bold'>TP</text><text x='160' y='102' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>prawdziwie</text><text x='160' y='113' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>pozytywne</text><rect x='210' y='60' width='100' height='60' fill='rgba(255,110,127,0.12)' stroke='#ff6e7f' stroke-width='1.5' rx='4'/><text x='260' y='86' text-anchor='middle' fill='#ff6e7f' font-size='13' font-family='monospace' font-weight='bold'>FN</text><text x='260' y='102' text-anchor='middle' fill='#ff6e7f' font-size='9' font-family='monospace'>falszywie</text><text x='260' y='113' text-anchor='middle' fill='#ff6e7f' font-size='9' font-family='monospace'>negatywne</text><rect x='110' y='120' width='100' height='60' fill='rgba(255,110,127,0.12)' stroke='#ff6e7f' stroke-width='1.5' rx='4'/><text x='160' y='146' text-anchor='middle' fill='#ff6e7f' font-size='13' font-family='monospace' font-weight='bold'>FP</text><text x='160' y='162' text-anchor='middle' fill='#ff6e7f' font-size='9' font-family='monospace'>falszywie</text><text x='160' y='173' text-anchor='middle' fill='#ff6e7f' font-size='9' font-family='monospace'>pozytywne</text><rect x='210' y='120' width='100' height='60' fill='rgba(127,255,110,0.12)' stroke='#7fff6e' stroke-width='1.5' rx='4'/><text x='260' y='146' text-anchor='middle' fill='#7fff6e' font-size='13' font-family='monospace' font-weight='bold'>TN</text><text x='260' y='162' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>prawdziwie</text><text x='260' y='173' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>negatywne</text></svg>" },
     { q:"Precyzja i Pelnosc — definicje i wzory",
       a:"Tylko dla 2 klas (pozytywna / negatywna):<div class='formula'>Precyzja P = TP / (TP + FP)\nPelnosc  R = TP / (TP + FN)</div>P = ile z zaklasyfikowanych jako pozytywne jest naprawde pozytywnych.<br>R = ile z faktycznie pozytywnych zostalo wykrytych." },
     { q:"F-miara — co to jest i wzor",
@@ -320,7 +325,7 @@ var data = [
     { q:"Jak dziala wieloklasyfikacja przy pomocy jednowarstwowej sieci?",
       a:"Kazdy perceptron klasyfikuje do 2 klas. Dla wiecej klas: uzywamy warstwy perceptronow (jeden na klase). Decyzja = klasa neuronu ktory sie maksymalnie aktywuje. Mozna uzyc ciaglych neuronow — bardziej odporne na jednoczesna aktywacje wielu neuronow." },
     { q:"Co wnosi wielowarstwowsc do sieci neuronowej?",
-      a:"Jedna warstwa — tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest UNIWERSALNYM APROKSYMATOREM." },
+      a:"Jedna warstwa — tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest UNIWERSALNYM APROKSYMATOREM.<svg viewBox='0 0 380 200' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:380px;display:block;margin:0.75rem auto'><rect width='380' height='200' fill='#0a0a0c' rx='10'/><circle cx='50' cy='70' r='14' fill='#1a1a2e' stroke='#6eaaff' stroke-width='1.5'/><circle cx='50' cy='100' r='14' fill='#1a1a2e' stroke='#6eaaff' stroke-width='1.5'/><circle cx='50' cy='130' r='14' fill='#1a1a2e' stroke='#6eaaff' stroke-width='1.5'/><text x='50' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>wejscie</text><circle cx='150' cy='60' r='14' fill='#1a1a2e' stroke='#ffcc6e' stroke-width='1.5'/><circle cx='150' cy='90' r='14' fill='#1a1a2e' stroke='#ffcc6e' stroke-width='1.5'/><circle cx='150' cy='120' r='14' fill='#1a1a2e' stroke='#ffcc6e' stroke-width='1.5'/><circle cx='150' cy='150' r='14' fill='#1a1a2e' stroke='#ffcc6e' stroke-width='1.5'/><text x='150' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>ukryta 1</text><circle cx='250' cy='75' r='14' fill='#1a1a2e' stroke='#cf6eff' stroke-width='1.5'/><circle cx='250' cy='105' r='14' fill='#1a1a2e' stroke='#cf6eff' stroke-width='1.5'/><circle cx='250' cy='135' r='14' fill='#1a1a2e' stroke='#cf6eff' stroke-width='1.5'/><text x='250' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>ukryta 2</text><circle cx='340' cy='100' r='14' fill='#1a1a2e' stroke='#7fff6e' stroke-width='2'/><text x='340' y='185' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>wyjscie</text><g stroke='#2a3a4a' stroke-width='0.8' opacity='0.7'><line x1='64' y1='70' x2='136' y2='63'/><line x1='64' y1='70' x2='136' y2='92'/><line x1='64' y1='70' x2='136' y2='121'/><line x1='64' y1='70' x2='136' y2='150'/><line x1='64' y1='100' x2='136' y2='63'/><line x1='64' y1='100' x2='136' y2='92'/><line x1='64' y1='100' x2='136' y2='121'/><line x1='64' y1='100' x2='136' y2='150'/><line x1='64' y1='130' x2='136' y2='63'/><line x1='64' y1='130' x2='136' y2='92'/><line x1='64' y1='130' x2='136' y2='121'/><line x1='64' y1='130' x2='136' y2='150'/><line x1='164' y1='62' x2='236' y2='76'/><line x1='164' y1='62' x2='236' y2='106'/><line x1='164' y1='62' x2='236' y2='136'/><line x1='164' y1='92' x2='236' y2='76'/><line x1='164' y1='92' x2='236' y2='106'/><line x1='164' y1='92' x2='236' y2='136'/><line x1='164' y1='122' x2='236' y2='76'/><line x1='164' y1='122' x2='236' y2='106'/><line x1='164' y1='122' x2='236' y2='136'/><line x1='164' y1='150' x2='236' y2='76'/><line x1='164' y1='150' x2='236' y2='106'/><line x1='164' y1='150' x2='236' y2='136'/><line x1='264' y1='77' x2='326' y2='100'/><line x1='264' y1='106' x2='326' y2='100'/><line x1='264' y1='135' x2='326' y2='100'/></g><text x='340' y='104' text-anchor='middle' fill='#7fff6e' font-size='9' font-family='monospace'>y</text></svg>" },
     { q:"Ograniczenia jednowarstwowej sieci neuronowej",
       a:"Moze tworzyc tylko liniowe granice decyzji — jak pojedynczy perceptron. Nie poradzi sobie z XOR ani danymi w ksztalcie pierscienia. Std potrzeba warstw ukrytych." }
   ]},
@@ -348,7 +353,7 @@ var data = [
     { q:"Co to jest model black box i kiedy jest problemem?",
       a:"Model black box (np. wielowarstwowa siec) jest skuteczny, ale wiedza nieczytelna (wagi polaczen). Problem gdy wymagana interpretowalnosc (medycyna, prawo, finanse). Alternatywy: drzewa i reguly decyzyjne." },
     { q:"Zlozonosc modelu — bias-variance tradeoff",
-      a:"Za prosty: underfitting — wysoki blad treningowy i testowy (high bias).<br>Za zlozony: overfitting — niski blad treningowy, wysoki testowy (high variance).<br>Optimum: srodkowa zlozonosc minimalizujaca blad testowy." },
+      a:"Za prosty: underfitting — wysoki blad treningowy i testowy (high bias).<br>Za zlozony: overfitting — niski blad treningowy, wysoki testowy (high variance).<br>Optimum: srodkowa zlozonosc minimalizujaca blad testowy.<svg viewBox='0 0 380 200' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:380px;display:block;margin:0.75rem auto'><rect width='380' height='200' fill='#0a0a0c' rx='10'/><line x1='40' y1='170' x2='360' y2='170' stroke='#2a2a35' stroke-width='1.5'/><line x1='40' y1='20' x2='40' y2='170' stroke='#2a2a35' stroke-width='1.5'/><text x='200' y='192' text-anchor='middle' fill='#7a7a90' font-size='10' font-family='monospace'>Zlozonosc modelu →</text><text x='12' y='100' fill='#7a7a90' font-size='10' font-family='monospace' transform='rotate(-90,12,100)'>Blad</text><path d='M50,60 Q120,55 200,90 Q280,130 340,150' stroke='#7fff6e' stroke-width='2' fill='none'/><path d='M50,140 Q100,80 160,55 Q220,38 340,30' stroke='#ff6e7f' stroke-width='2' fill='none'/><text x='345' y='152' fill='#7fff6e' font-size='9' font-family='monospace'>train</text><text x='345' y='32' fill='#ff6e7f' font-size='9' font-family='monospace'>test</text><line x1='160' y1='25' x2='160' y2='165' stroke='#ffcc6e' stroke-width='1.5' stroke-dasharray='4,3'/><text x='160' y='18' text-anchor='middle' fill='#ffcc6e' font-size='9' font-family='monospace'>optimum</text><rect x='42' y='25' width='70' height='16' fill='rgba(110,170,255,0.1)' rx='3'/><text x='77' y='37' text-anchor='middle' fill='#6eaaff' font-size='8' font-family='monospace'>underfitting</text><rect x='240' y='25' width='70' height='16' fill='rgba(207,110,255,0.1)' rx='3'/><text x='275' y='37' text-anchor='middle' fill='#cf6eff' font-size='8' font-family='monospace'>overfitting</text></svg>" },
     { q:"Jedna zaleta i jedna wada drzew decyzyjnych",
       a:"Zaleta: wysoka interpretowalnosc — wiedza zrozumiala dla czlowieka.<br>Wada: podatnosc na przetrenowanie i niestabilnosc — male zmiany danych moga zmienic cala strukture drzewa." },
     { q:"Przykladowe warunki zakonczenia budowy drzewa",
@@ -358,7 +363,7 @@ var data = [
     { q:"Cel algorytmu grupowania (clustering)",
       a:"Podzielic N obiektow na k grup: obiekty wewnatrz grupy mozliwie podobne, z roznych grup mozliwie rozne. Uczenie bez nadzoru — brak etykiet." },
     { q:"Jak dziala algorytm k-means?",
-      a:"1. Losowo przypisz kazdy punkt do jednej z k grup.<br>2. Oblicz centroid kazdej grupy (srednia wektorow).<br>3. Przypisz kazdy punkt do grupy z najblizszym centroidem.<br>4. Powtarzaj 2-3 az do braku zmian." },
+      a:"1. Losowo przypisz kazdy punkt do jednej z k grup.<br>2. Oblicz centroid kazdej grupy (srednia wektorow).<br>3. Przypisz kazdy punkt do grupy z najblizszym centroidem.<br>4. Powtarzaj 2-3 az do braku zmian.<svg viewBox='0 0 380 210' xmlns='http://www.w3.org/2000/svg' style='width:100%;max-width:380px;display:block;margin:0.75rem auto'><rect width='380' height='210' fill='#0a0a0c' rx='10'/><text x='95' y='18' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>Iteracja 1</text><text x='285' y='18' text-anchor='middle' fill='#7a7a90' font-size='9' font-family='monospace'>Iteracja 2</text><line x1='190' y1='10' x2='190' y2='200' stroke='#2a2a35' stroke-width='1'/><circle cx='60' cy='50' r='5' fill='#6eaaff'/><circle cx='80' cy='70' r='5' fill='#ff6e7f'/><circle cx='70' cy='90' r='5' fill='#6eaaff'/><circle cx='90' cy='55' r='5' fill='#ff6e7f'/><circle cx='55' cy='75' r='5' fill='#6eaaff'/><circle cx='130' cy='130' r='5' fill='#6eaaff'/><circle cx='150' cy='150' r='5' fill='#ff6e7f'/><circle cx='120' cy='155' r='5' fill='#ff6e7f'/><circle cx='145' cy='135' r='5' fill='#6eaaff'/><circle cx='135' cy='160' r='5' fill='#ff6e7f'/><polygon points='72,68 79,60 86,68' fill='#6eaaff' opacity='0.7'/><text x='90' y='65' fill='#6eaaff' font-size='8' font-family='monospace'>C1</text><polygon points='138,148 145,140 152,148' fill='#ff6e7f' opacity='0.7'/><text x='156' y='145' fill='#ff6e7f' font-size='8' font-family='monospace'>C2</text><circle cx='250' cy='55' r='5' fill='#6eaaff'/><circle cx='270' cy='75' r='5' fill='#6eaaff'/><circle cx='260' cy='90' r='5' fill='#6eaaff'/><circle cx='280' cy='60' r='5' fill='#6eaaff'/><circle cx='245' cy='80' r='5' fill='#6eaaff'/><circle cx='320' cy='130' r='5' fill='#ff6e7f'/><circle cx='340' cy='150' r='5' fill='#ff6e7f'/><circle cx='310' cy='155' r='5' fill='#ff6e7f'/><circle cx='335' cy='135' r='5' fill='#ff6e7f'/><circle cx='325' cy='160' r='5' fill='#ff6e7f'/><circle cx='261' cy='72' r='8' fill='none' stroke='#6eaaff' stroke-width='2'/><text x='272' y='68' fill='#6eaaff' font-size='8' font-family='monospace'>C1</text><circle cx='326' cy='146' r='8' fill='none' stroke='#ff6e7f' stroke-width='2'/><text x='337' y='142' fill='#ff6e7f' font-size='8' font-family='monospace'>C2</text><text x='95' y='195' text-anchor='middle' fill='#7a7a90' font-size='8' font-family='monospace'>centroidy losowe</text><text x='285' y='195' text-anchor='middle' fill='#7a7a90' font-size='8' font-family='monospace'>centroidy zaktualizowane</text></svg>" },
     { q:"Podaj dwie metody obliczania odleglosci miedzy klastrami",
       a:"<ul><li>Single linkage (min): minimalna odleglosc miedzy para punktow z roznych klastrow</li><li>Complete linkage (max): maksymalna odleglosc miedzy para punktow</li><li>Average linkage: srednia odleglosc miedzy wszystkimi parami</li><li>Centroid linkage: odleglosc miedzy centroidami</li></ul>" },
     { q:"Ograniczenie k-means — problem z ksztaltem C",
@@ -516,21 +521,77 @@ function setMode(m) {
   document.querySelectorAll('.mode-tab').forEach(function(t,i){
     t.classList.toggle('active', ['browse','learn','exam'][i] === m);
   });
-  document.getElementById('browse-mode').style.display = m==='browse' ? '' : 'none';
-  document.getElementById('learn-mode').style.display  = m==='learn'  ? '' : 'none';
-  document.getElementById('exam-mode').style.display   = m==='exam'   ? '' : 'none';
-  document.getElementById('search-wrap').style.display = m==='browse' ? '' : 'none';
-  document.getElementById('search-count').style.display = m==='browse' ? '' : 'none';
+  document.getElementById('browse-mode').style.display = m==='browse' ? 'block' : 'none';
+  document.getElementById('learn-mode').style.display  = m==='learn'  ? 'block' : 'none';
+  document.getElementById('exam-mode').style.display   = m==='exam'   ? 'block' : 'none';
+  document.getElementById('search-wrap').style.display = m==='browse' ? 'block' : 'none';
+  document.getElementById('search-count').style.display = m==='browse' ? 'block' : 'none';
   if (m==='learn') initLearn();
   if (m==='exam')  initExamSetup();
+}
+
+/* ===================== LOCALSTORAGE ===================== */
+var LS_KEY = 'nai_learn_v1';
+
+function lsLoad() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function lsSave(mem) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(mem)); } catch(e) {}
+}
+
+function lsMarkCorrect(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) mem[key] = { ok:0, fail:0 };
+  mem[key].ok++;
+  lsSave(mem);
+}
+
+function lsMarkWrong(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) mem[key] = { ok:0, fail:0 };
+  mem[key].fail++;
+  lsSave(mem);
+}
+
+function lsKnows(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) return null;
+  // "umie" jesli ostatnie 3 sesje poprawne i fail==0 ostatnio
+  return mem[key].ok >= 2 && mem[key].fail === 0;
+}
+
+function lsReset() {
+  localStorage.removeItem(LS_KEY);
+  learnRestart();
+}
+
+function lsStatsText() {
+  var mem = lsLoad();
+  var total = 0, knows = 0, weak = 0;
+  data.forEach(function(sec) {
+    sec.qs.forEach(function(qa) {
+      total++;
+      var key = qa.q.substring(0,60);
+      if (mem[key]) {
+        if (mem[key].ok >= 2 && mem[key].fail === 0) knows++;
+        else if (mem[key].fail > 0) weak++;
+      }
+    });
+  });
+  return { total:total, knows:knows, weak:weak };
 }
 
 /* ===================== LEARN MODE ===================== */
 var learnQueue = [], learnIdx = 0, learnCorrect = 0, learnTotal = 0;
 var learnSections = {};
+var learnWeakOnly = false;
 
 function initLearn() {
-  // build filter buttons
   var f = document.getElementById('learn-filter');
   if (f.children.length === 0) {
     data.forEach(function(sec) {
@@ -546,18 +607,35 @@ function initLearn() {
       f.appendChild(btn);
     });
   }
+  learnWeakOnly = false;
   learnRestart();
 }
 
 function learnRestart() {
+  learnWeakOnly = false;
+  learnBuild();
+}
+
+function learnRestartWeak() {
+  learnWeakOnly = true;
+  learnBuild();
+}
+
+function learnBuild() {
+  var mem = lsLoad();
   learnQueue = [];
   learnCorrect = 0;
   data.forEach(function(sec) {
-    if (learnSections[sec.id]) {
-      sec.qs.forEach(function(qa) {
-        learnQueue.push({ q: qa.q, a: qa.a, sec: sec.title });
-      });
-    }
+    if (!learnSections[sec.id]) return;
+    sec.qs.forEach(function(qa) {
+      if (learnWeakOnly) {
+        var key = qa.q.substring(0,60);
+        var r = mem[key];
+        // tylko te z fail>0 lub jeszcze niewidziane
+        if (r && r.ok >= 2 && r.fail === 0) return; // umie — pomiń
+      }
+      learnQueue.push({ q: qa.q, a: qa.a, sec: sec.title });
+    });
   });
   // shuffle
   for (var i = learnQueue.length-1; i > 0; i--) {
@@ -567,21 +645,31 @@ function learnRestart() {
   learnTotal = learnQueue.length;
   learnIdx = 0;
   document.getElementById('learn-done').style.display = 'none';
-  document.getElementById('learn-card').style.display = '';
+  document.getElementById('learn-card').style.display = 'block';
   learnShow();
 }
 
 function learnShow() {
   if (learnIdx >= learnQueue.length) { learnFinish(); return; }
   var item = learnQueue[learnIdx];
+  var mem = lsLoad();
+  var key = item.q.substring(0,60);
+  var r = mem[key];
+
   document.getElementById('learn-q').textContent = item.q;
   document.getElementById('learn-a').innerHTML = item.a;
   document.getElementById('learn-a').style.display = 'none';
-  document.getElementById('learn-badge').textContent = item.sec;
+  // badge: sekcja + historia
+  var hist = '';
+  if (r) {
+    hist = '  •  ✓ ' + r.ok + '  ✗ ' + r.fail;
+  }
+  document.getElementById('learn-badge').textContent = item.sec + hist;
   document.getElementById('learn-btns').style.display = 'flex';
   document.getElementById('learn-after-btns').style.display = 'none';
   var pct = learnTotal > 0 ? Math.round((learnIdx/learnTotal)*100) : 0;
-  document.getElementById('learn-progress').textContent = (learnIdx+1) + ' / ' + learnTotal + '  •  ✓ ' + learnCorrect;
+  document.getElementById('learn-progress').textContent =
+    (learnIdx+1) + ' / ' + learnTotal + '  •  tej sesji: ✓ ' + learnCorrect;
   document.getElementById('learn-bar').style.width = pct + '%';
 }
 
@@ -592,7 +680,13 @@ function learnReveal() {
 }
 
 function learnNext(correct) {
-  if (correct) learnCorrect++;
+  var item = learnQueue[learnIdx];
+  if (correct) {
+    learnCorrect++;
+    lsMarkCorrect(item.q);
+  } else {
+    lsMarkWrong(item.q);
+  }
   learnIdx++;
   learnShow();
 }
@@ -605,8 +699,18 @@ function learnSkip() {
 function learnFinish() {
   document.getElementById('learn-card').style.display = 'none';
   document.getElementById('learn-done').style.display = 'block';
+  var pct = learnTotal > 0 ? Math.round((learnCorrect/learnTotal)*100) : 0;
+  document.getElementById('learn-done-emoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📖';
   document.getElementById('learn-done-stats').textContent =
-    'Wynik: ' + learnCorrect + ' / ' + learnTotal + ' (' + Math.round((learnCorrect/learnTotal)*100) + '%)';
+    'Sesja: ' + learnCorrect + ' / ' + learnTotal + ' (' + pct + '%)';
+  // memory stats
+  var st = lsStatsText();
+  var weakCount = st.total - st.knows;
+  document.getElementById('learn-done-memory').textContent =
+    'Pamięć łączna: ✓ umiesz ' + st.knows + ' / ' + st.total + ' pytań  •  do powtórzenia: ' + weakCount;
+  var weakBtn = document.getElementById('btn-only-weak');
+  if (weakCount === 0) weakBtn.style.display = 'none';
+  else weakBtn.style.display = '';
 }
 
 /* ===================== EXAM MODE ===================== */
