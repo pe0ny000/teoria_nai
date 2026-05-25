@@ -197,15 +197,10 @@
     </div>
   </div>
   <div class="learn-done" id="learn-done" style="display:none">
-    <div style="font-size:3rem;margin-bottom:1rem" id="learn-done-emoji">🎉</div>
-    <h2>Koniec sesji!</h2>
+    <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+    <h2>Koniec!</h2>
     <p id="learn-done-stats" style="margin-top:0.5rem"></p>
-    <div id="learn-done-memory" style="margin-top:1rem;font-family:var(--mono);font-size:0.65rem;color:var(--muted)"></div>
-    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
-      <button class="btn btn-primary" onclick="learnRestart()">Wszystkie pytania</button>
-      <button class="btn btn-wrong" id="btn-only-weak" onclick="learnRestartWeak()">Tylko nie umiem</button>
-      <button class="btn btn-ghost" onclick="lsReset()">Resetuj pamięć</button>
-    </div>
+    <button class="btn btn-primary" style="margin-top:1.5rem" onclick="learnRestart()">Zacznij od nowa</button>
   </div>
 </div>
 
@@ -521,77 +516,21 @@ function setMode(m) {
   document.querySelectorAll('.mode-tab').forEach(function(t,i){
     t.classList.toggle('active', ['browse','learn','exam'][i] === m);
   });
-  document.getElementById('browse-mode').style.display = m==='browse' ? 'block' : 'none';
-  document.getElementById('learn-mode').style.display  = m==='learn'  ? 'block' : 'none';
-  document.getElementById('exam-mode').style.display   = m==='exam'   ? 'block' : 'none';
-  document.getElementById('search-wrap').style.display = m==='browse' ? 'block' : 'none';
-  document.getElementById('search-count').style.display = m==='browse' ? 'block' : 'none';
+  document.getElementById('browse-mode').style.display = m==='browse' ? '' : 'none';
+  document.getElementById('learn-mode').style.display  = m==='learn'  ? '' : 'none';
+  document.getElementById('exam-mode').style.display   = m==='exam'   ? '' : 'none';
+  document.getElementById('search-wrap').style.display = m==='browse' ? '' : 'none';
+  document.getElementById('search-count').style.display = m==='browse' ? '' : 'none';
   if (m==='learn') initLearn();
   if (m==='exam')  initExamSetup();
-}
-
-/* ===================== LOCALSTORAGE ===================== */
-var LS_KEY = 'nai_learn_v1';
-
-function lsLoad() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
-}
-
-function lsSave(mem) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(mem)); } catch(e) {}
-}
-
-function lsMarkCorrect(q) {
-  var mem = lsLoad();
-  var key = q.substring(0, 60);
-  if (!mem[key]) mem[key] = { ok:0, fail:0 };
-  mem[key].ok++;
-  lsSave(mem);
-}
-
-function lsMarkWrong(q) {
-  var mem = lsLoad();
-  var key = q.substring(0, 60);
-  if (!mem[key]) mem[key] = { ok:0, fail:0 };
-  mem[key].fail++;
-  lsSave(mem);
-}
-
-function lsKnows(q) {
-  var mem = lsLoad();
-  var key = q.substring(0, 60);
-  if (!mem[key]) return null;
-  // "umie" jesli ostatnie 3 sesje poprawne i fail==0 ostatnio
-  return mem[key].ok >= 2 && mem[key].fail === 0;
-}
-
-function lsReset() {
-  localStorage.removeItem(LS_KEY);
-  learnRestart();
-}
-
-function lsStatsText() {
-  var mem = lsLoad();
-  var total = 0, knows = 0, weak = 0;
-  data.forEach(function(sec) {
-    sec.qs.forEach(function(qa) {
-      total++;
-      var key = qa.q.substring(0,60);
-      if (mem[key]) {
-        if (mem[key].ok >= 2 && mem[key].fail === 0) knows++;
-        else if (mem[key].fail > 0) weak++;
-      }
-    });
-  });
-  return { total:total, knows:knows, weak:weak };
 }
 
 /* ===================== LEARN MODE ===================== */
 var learnQueue = [], learnIdx = 0, learnCorrect = 0, learnTotal = 0;
 var learnSections = {};
-var learnWeakOnly = false;
 
 function initLearn() {
+  // build filter buttons
   var f = document.getElementById('learn-filter');
   if (f.children.length === 0) {
     data.forEach(function(sec) {
@@ -607,35 +546,18 @@ function initLearn() {
       f.appendChild(btn);
     });
   }
-  learnWeakOnly = false;
   learnRestart();
 }
 
 function learnRestart() {
-  learnWeakOnly = false;
-  learnBuild();
-}
-
-function learnRestartWeak() {
-  learnWeakOnly = true;
-  learnBuild();
-}
-
-function learnBuild() {
-  var mem = lsLoad();
   learnQueue = [];
   learnCorrect = 0;
   data.forEach(function(sec) {
-    if (!learnSections[sec.id]) return;
-    sec.qs.forEach(function(qa) {
-      if (learnWeakOnly) {
-        var key = qa.q.substring(0,60);
-        var r = mem[key];
-        // tylko te z fail>0 lub jeszcze niewidziane
-        if (r && r.ok >= 2 && r.fail === 0) return; // umie — pomiń
-      }
-      learnQueue.push({ q: qa.q, a: qa.a, sec: sec.title });
-    });
+    if (learnSections[sec.id]) {
+      sec.qs.forEach(function(qa) {
+        learnQueue.push({ q: qa.q, a: qa.a, sec: sec.title });
+      });
+    }
   });
   // shuffle
   for (var i = learnQueue.length-1; i > 0; i--) {
@@ -645,31 +567,21 @@ function learnBuild() {
   learnTotal = learnQueue.length;
   learnIdx = 0;
   document.getElementById('learn-done').style.display = 'none';
-  document.getElementById('learn-card').style.display = 'block';
+  document.getElementById('learn-card').style.display = '';
   learnShow();
 }
 
 function learnShow() {
   if (learnIdx >= learnQueue.length) { learnFinish(); return; }
   var item = learnQueue[learnIdx];
-  var mem = lsLoad();
-  var key = item.q.substring(0,60);
-  var r = mem[key];
-
   document.getElementById('learn-q').textContent = item.q;
   document.getElementById('learn-a').innerHTML = item.a;
   document.getElementById('learn-a').style.display = 'none';
-  // badge: sekcja + historia
-  var hist = '';
-  if (r) {
-    hist = '  •  ✓ ' + r.ok + '  ✗ ' + r.fail;
-  }
-  document.getElementById('learn-badge').textContent = item.sec + hist;
+  document.getElementById('learn-badge').textContent = item.sec;
   document.getElementById('learn-btns').style.display = 'flex';
   document.getElementById('learn-after-btns').style.display = 'none';
   var pct = learnTotal > 0 ? Math.round((learnIdx/learnTotal)*100) : 0;
-  document.getElementById('learn-progress').textContent =
-    (learnIdx+1) + ' / ' + learnTotal + '  •  tej sesji: ✓ ' + learnCorrect;
+  document.getElementById('learn-progress').textContent = (learnIdx+1) + ' / ' + learnTotal + '  •  ✓ ' + learnCorrect;
   document.getElementById('learn-bar').style.width = pct + '%';
 }
 
@@ -680,13 +592,7 @@ function learnReveal() {
 }
 
 function learnNext(correct) {
-  var item = learnQueue[learnIdx];
-  if (correct) {
-    learnCorrect++;
-    lsMarkCorrect(item.q);
-  } else {
-    lsMarkWrong(item.q);
-  }
+  if (correct) learnCorrect++;
   learnIdx++;
   learnShow();
 }
@@ -699,18 +605,8 @@ function learnSkip() {
 function learnFinish() {
   document.getElementById('learn-card').style.display = 'none';
   document.getElementById('learn-done').style.display = 'block';
-  var pct = learnTotal > 0 ? Math.round((learnCorrect/learnTotal)*100) : 0;
-  document.getElementById('learn-done-emoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📖';
   document.getElementById('learn-done-stats').textContent =
-    'Sesja: ' + learnCorrect + ' / ' + learnTotal + ' (' + pct + '%)';
-  // memory stats
-  var st = lsStatsText();
-  var weakCount = st.total - st.knows;
-  document.getElementById('learn-done-memory').textContent =
-    'Pamięć łączna: ✓ umiesz ' + st.knows + ' / ' + st.total + ' pytań  •  do powtórzenia: ' + weakCount;
-  var weakBtn = document.getElementById('btn-only-weak');
-  if (weakCount === 0) weakBtn.style.display = 'none';
-  else weakBtn.style.display = '';
+    'Wynik: ' + learnCorrect + ' / ' + learnTotal + ' (' + Math.round((learnCorrect/learnTotal)*100) + '%)';
 }
 
 /* ===================== EXAM MODE ===================== */
