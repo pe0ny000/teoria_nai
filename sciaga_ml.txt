@@ -1,0 +1,365 @@
+================================================================
+SCIAGA ML — PYTANIA I ODPOWIEDZI
+================================================================
+
+
+--- PODSTAWY ML ---
+
+P: Co to jest uczenie z nadzorem (supervised learning)?
+O: Model uczy sie na przykladach z etykietami. Na podstawie zbioru {(xi, yi)} uczy sie przewidywac y dla nowych x. Przyklady: klasyfikacja spamu, przewidywanie cen.
+
+P: Czym jest uczenie bez nadzoru (unsupervised learning)?
+O: Dane nie maja etykiet — brak atrybutu decyzyjnego. Algorytm sam szuka ukrytej struktury. Przyklady: grupowanie (k-means), redukcja wymiarowosci (PCA).
+
+P: Roznice miedzy uczeniem z nadzorem a bez nadzoru.
+O: Z nadzorem: dane maja etykiety, cel to predykcja Y.
+   Bez nadzoru: brak etykiet, cel to odkrycie struktury.
+   Uczenie bez nadzoru jest trudniejsze — brak obiektywnego kryterium jakosci (brak zlotego standardu).
+
+P: Czym sie rozni regresja od klasyfikacji?
+O: Regresja — wyjscie ciagle (np. cena, temperatura).
+   Klasyfikacja — wyjscie dyskretne, przypisanie do klasy (spam/nie-spam).
+   Przyklady regresji: cena nieruchomosci, ocena kredytowa, prognoza sprzedazy.
+
+P: Jak dane sa reprezentowane w formie wektorow?
+O: Kazdy obiekt = wektor n-wymiarowy x = (x1, x2, ..., xn), gdzie kazda wspolrzedna to jeden atrybut. Zbior danych = macierz N x n.
+
+P: Oblicz dlugosc wektora trojwymiarowego.
+O: ||v|| = sqrt(v1^2 + v2^2 + v3^2). Np. dla v=(1,2,2): sqrt(1+4+4) = 3.
+
+P: Algorytm KNN — czym jest?
+O: K Nearest Neighbors — klasyfikujemy nowy punkt patrzac na k najblizszych przykladow treningowych i przypisujac dominujaca klase. Odleglosc euklidesowa. Brak fazy uczenia — metoda leniwa.
+
+
+--- PERCEPTRON ---
+
+P: Czym jest perceptron i z czego jest zbudowany?
+O: Model pojedynczego neuronu. Sklada sie z: wektora wejsc X, wektora wag W, progu aktywacji Theta, funkcji aktywacji.
+   Wyjscie: y=1 gdy W*X >= Theta, inaczej y=0.
+
+P: Interpretacja geometryczna perceptronu.
+O: Wektor wag W jest wektorem normalnym do hiperplaszczyzny decyzyjnej, ktora rozgranicza klasy.
+   Prog Theta wyznacza jak daleko hiperplaszczyzna jest odsunieta od poczatku ukladu.
+   Perceptron aktywuje sie gdy X jest po tej samej stronie hiperplaszczyzny co W.
+
+P: Jakie sa ograniczenia pojedynczego perceptronu?
+O: Rozdziela tylko klasy liniowo separowalne. XOR nie jest liniowo separowalny — perceptron go nie nauczy. AND i OR — tak.
+
+P: Regula Delta — wzor na aktualizacje wag.
+O: W' = W + (d - y) * alpha * X
+   d = oczekiwane wyjscie, y = aktualne wyjscie, alpha = stala uczenia (0,1), X = wektor wejsc.
+
+P: Interpretacja geometryczna reguly Delta.
+O: Wzor W' = W + (d-y)*alpha*X:
+   - przyciaga wektor W do pozytywnych przykladow X (gdy odpowiedz 0 zamiast 1 — za slaba aktywacja)
+   - odpycha W od negatywnych przykladow X (gdy odpowiedz 1 zamiast 0 — zbyt mocna aktywacja)
+
+P: Czym rozni sie perceptron ciagly od dyskretnego?
+O: Dyskretny: y nalezy do {0,1} lub {-1,1} — funkcja progowa lub signum.
+   Ciagly: y nalezy do [0,1] lub [-1,1] — sigmoidalna lub liniowa.
+   Ciagly jest rozniczkowalny — niezbedny dla backpropagation.
+
+P: Zaleta i wada lokalnej reprezentacji warstwy perceptronow.
+O: Zaleta: latwa interpretowalnosc — kazdy neuron odpowiada za konkretna ceche/klase.
+   Wada: wymaga wielu neuronow (jeden na klase), malo efektywne dla duzych zbiorow.
+
+
+--- FUNKCJE AKTYWACJI, EWALUACJA ---
+
+P: Do czego sluzy funkcja aktywacji? Podaj przyklady.
+O: Okresla jak wyjscie neuronu zalezy od sumy wazonej wejsc (net). Wprowadza nieliniowosci.
+   Signum:       y = sign(net), wartosci {-1, 1}
+   Progowa:      y = 1 jesli net > 0, else 0
+   Sigmoidalna:  y = 1 / (1 + e^(-net))
+   Liniowa:      y = net
+
+P: Czym jest macierz pomylek i do czego sluzy?
+O: Pokazuje ile przypadkow zostalo prawidlowo/nieprawidlowo sklasyfikowanych dla kazdej kombinacji
+   klasy rzeczywistej i przewidywanej. Umozliwia obliczenie precyzji, pelnosci i F-miary.
+   Dziala dla dowolnej liczby klas.
+
+P: Precyzja i Pelnosc — definicje i wzory.
+O: Tylko dla 2 klas (pozytywna / negatywna):
+   Precyzja P = TP / (TP + FP)
+   Pelnosc  R = TP / (TP + FN)
+   P = ile z zaklasyfikowanych jako pozytywne jest naprawde pozytywnych.
+   R = ile z faktycznie pozytywnych zostalo wykrytych.
+
+P: F-miara — co to jest i wzor.
+O: P i R sa sprzeczne — poprawa jednej zwykle pogarsza druga.
+   F-miara laczy obie w jedna liczbe (srednia harmoniczna):
+   F = 2 * P * R / (P + R)
+   Jesli F jest wysoka, obie miary P i R musza byc wysokie.
+
+P: Jakie sa wady precyzji jako jedynej miary ewaluacji?
+O: Precyzja ignoruje False Negatives. Przy niezbalansowanych danych wysoka precyzja moze maskowac
+   zly model. Dlatego stosuje sie F-miare lub analizuje cala macierz pomylek.
+
+
+--- SIECI NEURONOWE ---
+
+P: Czym jest warstwa ukryta i dlaczego tak sie nazywa?
+O: Kazda warstwa miedzy wejsciowa a wyjsciowa. Ukryta — bo nie wiemy jaka powinna byc jej
+   poprawna odpowiedz (etykiety mamy tylko dla wyjscia). Warstwy ukryte ucza sie reprezentacji posrednich.
+
+P: Metoda wstecznej propagacji bledu — czym jest?
+O: Algorytm uczenia sieci wielowarstwowych. Wagi modyfikowane od warstwy ostatniej do pierwszej
+   (wstecz), uzywajac reguly lancuchowej do obliczenia gradientow bledu wzgledem wag kazdej warstwy.
+
+P: Wzor na blad neuronu ciagrego.
+O: E = (1/2) * (d - y)^2
+   d = oczekiwane wyjscie, y = aktualne. Wspolczynnik 1/2 upraszcza pochodna.
+
+P: Metoda gradientu — czym jest i gdzie sie stosuje?
+O: Minimalizuje funkcje bledu idac w kierunku przeciwnym do gradientu:
+   W_new = W_old - eta * gradient_E(W)
+   Stosowana w uczeniu sieci neuronowych, regresji logistycznej, SVM.
+
+P: Jak dziala wieloklasyfikacja przy pomocy jednowarstwowej sieci?
+O: Kazdy perceptron klasyfikuje do 2 klas. Dla wiecej klas: uzywamy warstwy perceptronow (jeden
+   na klase). Kazde wejscie podlaczone do kazdego perceptrona. Decyzja = klasa neuronu ktory
+   sie maksymalnie aktywuje. Mozna uzyc ciaglych neuronow — bardziej odporne na jednoczesna
+   aktywacje wielu neuronow.
+
+P: Co wnosi wielowarstwowsc do sieci neuronowej?
+O: Jedna warstwa tworzy tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta
+   wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest
+   UNIWERSALNYM APROKSYMATOREM — moze aproksymowac dowolna funkcje.
+
+P: Ograniczenia jednowarstwowej sieci neuronowej.
+O: Moze tworzyc tylko liniowe granice decyzji — jak pojedynczy perceptron. Nie poradzi sobie
+   z XOR ani danymi w ksztalcie pierscienia. Stąd potrzeba warstw ukrytych.
+
+
+--- NAIWNY BAYES ---
+
+P: Wzor Bayesa.
+O: P(Y=y | X=x) = P(X=x | Y=y) * P(Y=y) / P(X=x)
+
+P: Co czyni naiwny klasyfikator Bayesa naiwnym?
+O: Zalozenie ze wszystkie atrybuty sa parami NIEZALEZNE:
+   P(X=(x1..xn)|Y=y) = P(X1=x1|Y=y) * ... * P(Xn=xn|Y=y)
+   Dzieki temu szacujemy kazdy atrybut osobno — znacznie prostsze obliczeniowo.
+   W praktyce zalozenie rzadko zachodzi.
+
+P: Czym jest przetrenowanie (overfitting)?
+O: Model zapamietal zbior treningowy zamiast nauczyc sie ogolnych wzorcow. Niski blad treningowy,
+   wysoki testowy. Rozwiazania: pruning, walidacja krzyzowa, regularyzacja, wiecej danych.
+
+P: Czym jest walidacja krzyzowa?
+O: Dane dzielimy na k foldow. W k rundach kolejno jeden fold = test, reszta = trening.
+   Wyniki usredniamy. Lepiej ocenia generalizacje niz pojedynczy podzial.
+
+P: Na czym polega wygładzanie (smoothing) w naiwnym Bayesie?
+O: Jesli atrybut nie wystapil dla danej klasy w zbiorze treningowym, P=0 i zeruje caly iloczyn.
+   Wygładzanie Laplace'a: dodaj 1 do licznika i liczbe mozliwych wartosci do mianownika.
+   P nigdy nie rowna sie dokladnie 0.
+
+
+--- DRZEWA DECYZYJNE, ZLOZONOSC MODELU ---
+
+P: Do czego sluzy drzewo decyzyjne?
+O: Model klasyfikacji/regresji podejmujacy decyzje przez sekwencje pytan o atrybuty.
+   Wezly = testy atrybutow, liscie = klasy. Glowna zaleta: interpretowalnosc.
+
+P: Do czego sluzy entropia w drzewach decyzyjnych?
+O: Mierzy czystosc podzialu danych. Wybieramy atrybut ktory minimalizuje entropie
+   (maksymalizuje zysk informacji). Entropia=0 gdy wszystkie przyklady naleza do jednej klasy.
+
+P: Czym jest pruning?
+O: Upraszcza drzewo przez usuwanie galezi ktore nie poprawiaja jakosci. Zapobiega przetrenowaniu.
+   C4.5 stosuje pruning automatycznie. Cost complexity: minimalizuje RSS + alfa*|T|.
+
+P: Czym sa reguly decyzyjne?
+O: Forma reprezentacji wiedzy: IF [warunki] THEN [klasa]. Czytelne dla czlowieka jak drzewa.
+   Algorytmy indukcji regul ucza sie ich ze zbioru treningowego.
+   Przyklad: IF pogoda=slonecznie AND wilgotnosc=normalna THEN graj=tak.
+
+P: Co to jest model black box i kiedy jest problemem?
+O: Model black box (np. wielowarstwowa siec) jest skuteczny, ale wiedza reprezentowana jest
+   nieczytelnie (wagi polaczen). Nie mozna wytlumaczyc decyzji. Problem gdy wymagana jest
+   interpretowalnosc (medycyna, prawo, finanse). Alternatywy: drzewa i reguly decyzyjne.
+
+P: Zlozonosc modelu — bias-variance tradeoff.
+O: Za prosty model: underfitting — wysoki blad treningowy i testowy (high bias, low variance).
+   Za zlozony model: overfitting — niski blad treningowy, wysoki testowy (low bias, high variance).
+   Optimum: srodkowa zlozonosc minimalizujaca blad testowy.
+
+P: Jedna zaleta i jedna wada drzew decyzyjnych.
+O: Zaleta: wysoka interpretowalnosc — wiedza zrozumiala dla czlowieka.
+   Wada: podatnosc na przetrenowanie i niestabilnosc — male zmiany danych moga zmienic cala strukture.
+
+P: Przykladowe warunki zakonczenia budowy drzewa.
+O: - Wszystkie przyklady naleza do tej samej klasy (entropia=0)
+   - Osiagnieto maksymalna glebokosc
+   - Liczba przykladow ponizej progu minimalnego
+   - Zysk informacji kolejnego podzialu ponizej progu
+
+
+--- GRUPOWANIE ---
+
+P: Cel algorytmu grupowania (clustering).
+O: Podzielic N obiektow na k grup: obiekty wewnatrz grupy mozliwie podobne, z roznych grup
+   mozliwie rozne. Uczenie bez nadzoru — brak etykiet.
+
+P: Jak dziala algorytm k-means?
+O: 1. Losowo przypisz kazdy punkt do jednej z k grup.
+   2. Oblicz centroid kazdej grupy (srednia wektorow).
+   3. Przypisz kazdy punkt do grupy z najblizszym centroidem.
+   4. Powtarzaj 2-3 az do braku zmian.
+
+P: Podaj dwie metody obliczania odleglosci miedzy klastrami.
+O: Single linkage (min): minimalna odleglosc miedzy para punktow z roznych klastrow.
+   Complete linkage (max): maksymalna odleglosc miedzy para punktow.
+   (inne: average linkage, centroid linkage)
+
+P: Ograniczenie k-means — problem z ksztaltem C.
+O: K-means dzieli dane liniowo — nie potrafi rozdzielic ksztaltow niekonweksowych (pierscien, C).
+   Klastry oddzielone hiperplaszczyzna niezaleznie od faktycznego ksztaltu. Fundamentalne ograniczenie.
+
+P: Czym jest grupowanie hierarchiczne?
+O: Algorytm aglomeracyjny (bottom-up):
+   1. Start: kazdy punkt = osobny klaster (N klastrow)
+   2. Polacz dwa najblizsze klastry
+   3. Powtarzaj az zostanie 1 klaster
+   Wynik: dendrogram — drzewo hierarchii polaczen. Liczbe klastrow wybieramy po zbudowaniu.
+
+P: Co to jest dendrogram?
+O: Drzewo hierarchii polaczen klastrow. Os Y = odleglosc przy ktorej klastry zostaly polaczone.
+   Punkty laczace sie nisko sa podobne. Aby uzyskac k klastrow — tniemy na wybranej wysokosci.
+
+
+--- PCA ---
+
+P: Czym jest PCA (Principal Component Analysis)?
+O: Metoda redukcji wymiarowosci (uczenie bez nadzoru). Szuka kierunkow o maksymalnej wariancji
+   w danych (glowne skladowe), parami niezaleznych. Rzutuje dane na te kierunki zachowujac
+   jak najwiecej informacji. Zastosowania: wizualizacja, preprocessing.
+
+P: Jaka jest roznica miedzy PCA a clusteringiem?
+O: PCA: szuka niskowymiarowej reprezentacji (nowe wspolrzedne — kombinacje zmiennych).
+   Clustering: szuka jednorodnych podgrup (przypisanie punktow do grup).
+   Oba to uczenie bez nadzoru, ale rozwiazuja inne zadania.
+
+P: Dlaczego uczenie bez nadzoru jest trudniejsze niz z nadzorem?
+O: Brak zlotego standardu — nie ma zmiennej odpowiedzi Y ani jednego obiektywnego kryterium.
+   Wiele mozliwych interpretacji tej samej struktury. Wyniki sa bardziej subiektywne.
+
+
+--- OPTYMALIZACJA ---
+
+P: Co to jest metoda silowa (brute-force)?
+O: Generuj wszystkie mozliwe rozwiazania, sprawdz kazde, zwroc optymalne. Zawsze znajduje optimum,
+   ale zlozonosc niepraktycznie wysoka: 2^n dla plecaka, n! dla komiwojazera.
+
+P: Problem plecakowy — ile rozwiazania przeszukuje brute-force?
+O: Dla n przedmiotow: 2^n mozliwych podzbiorow (kazdy przedmiot albo jest w plecaku albo nie).
+
+P: Kontrprzyklad dla zachlannego w problemie plecakowym.
+O: Pojemnosc=10. A(waga=6, wartosc=6), B(waga=5, wartosc=5), C(waga=5, wartosc=5).
+   Zachlanne: wybiera A => wartosc=6.
+   Optymalne: B+C => wartosc=10.
+
+P: Podejscie zachlanne do komiwojazera (TSP).
+O: Nearest Neighbor: zacznij od dowolnego miasta, idz do najblizszego nieodwiedzonego.
+   Szybkie, ale nie gwarantuje optymalnosci — trasa moze byc znaczaco dluzsza od optymalnej.
+
+P: Zalety i wady przeszukiwania lokalnego.
+O: Zalety: uniwersalne (dowolny problem opt. dyskretnej), akceptowalna zlozonosc czasowa.
+   Wady: brak gwarancji optymalnosci globalnej — optimum lokalne. Nie wiemy jak daleko od globalnego.
+
+P: Algorytm wspinaczkowy HC — pseudokod.
+O: current = losowe rozwiazanie dopuszczalne
+   while (istnieje lepszy sasiad):
+     current = najlepszy sasiad
+   return current
+   Zawsze idzie do gory. Zatrzymuje sie w pierwszym optimum lokalnym.
+
+P: Ulepszenia algorytmu wspinaczkowego.
+O: - Random restart: uruchamiaj HC wielokrotnie z roznych startow, wybierz najlepsze
+   - Beam search: pamietaj k biezacych rozwiazania i rozpatruj k najlepszych ruchow jednoczesnie
+   - Simulated Annealing: pozwol na gorsze ruchy z malejacym prawdopodobienstwem
+
+P: 4 pozadane wlasnosci relacji sasiedztwa.
+O: 1. Spojnosc: z kazdego rozwiazania mozna dotrzec do kazdego innego.
+   2. Minimalna roznica sasiadow: roznia sie jak najmniej (koszt bliski).
+   3. Mala liczba sasiadow: efektywny wybor najlepszego w kazdej iteracji.
+   4. Mala srednica: mala maks. liczba iteracji.
+
+P: Jak zaproponowac relacje sasiedztwa dla problemu plecakowego?
+O: Dobra relacja: sasiad = rozwiazanie rozniace sie dodaniem lub usunieciem dokladnie JEDNEGO
+   przedmiotu (o ile nowe rozwiazanie jest dopuszczalne).
+   Spelnia: mala roznica, mala liczba sasiadow (n sasiadow), spojnosc.
+
+P: Specyfikacja problemu plecakowego.
+O: Wejscie: n przedmiotow o wagach w_i i wartosciach c_i, pojemnosc plecaka W.
+   Wyjscie: podzbioru o maks. lacznej wartosci przy lacznej wadze <= W.
+
+P: Problem minimalnego drzewa rozpinajacego (MST).
+O: Wejscie: nieskierowany spojny graf G=(V,E) z wagami na krawedziach.
+   Wyjscie: spojny podgraf zawierajacy wszystkie wierzcholki o minimalnej sumie wag (musi byc drzewem).
+   Algorytmy: Kruskal, Prim — oba zachlanne i optymalne.
+
+
+--- SYMULOWANE WYCHLADZANIE ---
+
+P: Czym jest symulowane wychladzanie (Simulated Annealing)?
+O: Ulepszenie HC — pozwala na chwilowe przejscie do GORSZEGO rozwiazania by uciec z optimum lokalnego.
+   Pseudokod:
+     current = losowe rozwiazanie
+     while (stopCondition):
+       candidate = losowy sasiad(current)
+       if f(candidate) lepszy: current = candidate
+       else: current = candidate z prawdopodob. P(temp)
+       obniz temperature
+     return best_seen_solution
+   Prawdopodobienstwo przyjecia gorszego ruchu maleje z temperatura.
+   Analogia: powolne wychladzanie metalu = lepszy krysztal.
+
+P: Dlaczego SA jest lepsze od HC?
+O: HC zawsze idzie do gory — zatrzymuje sie w pierwszym optimum lokalnym.
+   SA moze przyjac gorszy ruch, dzieki czemu moze wydostac sie z pulapki lokalnej.
+   SA tez nie gwarantuje optimum globalnego, ale daje wieksze szanse.
+
+
+--- ENSEMBLE (BAGGING, RANDOM FOREST, BOOSTING) ---
+
+P: Czym jest bagging?
+O: Bootstrap Aggregation — redukuje wariancje przez usrednianie.
+   Tworzymy B bootstrapowanych kopii danych (losowanie ze zwracaniem).
+   Na kazdej trenujemy drzewo. Predykcja: srednia (regresja) lub glosowanie wiekszosciowe (klasyfikacja).
+
+P: Czym jest Random Forest i czym rozni sie od baggingu?
+O: RF = bagging + przy kazdym podziale wezla losujemy m atrybutow (nie wszystkie p).
+   Typowo m ≈ sqrt(p).
+   Cel: dekorelacja drzew — gdy jeden atrybut dominuje, bagging daje podobne drzewa. RF temu zapobiega.
+
+P: Czym jest boosting?
+O: Uczy drzewa sekwencyjnie — kazde kolejne koncentruje sie na przykladach zle sklasyfikowanych
+   przez poprzednie. Roznica od baggingu: rownolegle niezalezne vs sekwencyjne zalezne.
+   Moze przetrenowac przy zbyt duzym B — dobieramy przez cross-validation.
+
+P: Zalety i wady ensemble vs pojedyncze drzewo.
+O: Zalety: znacznie wyzsza dokladnosc predykcji, mniejsza wariancja, odpornosc na przetrenowanie.
+   Wady: utrata interpretowalnosci — black box, nie mozna wytlumaczyc decyzji jednym drzewem.
+
+
+--- MATROIDY I KODOWANIE HUFFMANA ---
+
+P: Kiedy algorytm zachlanny gwarantuje optimum globalne?
+O: Gdy problem ma strukture matroidu — twierdzenie Rado-Edmondsa. Jezeli M=(E,I) jest matroidem,
+   to prosty algorytm zachlanny (sortuj malejaco, dodawaj element jesli rozwiazanie pozostaje
+   dopuszczalne) zawsze znajdzie optymalne rozwiazanie.
+
+P: Co to jest matroid?
+O: Para M=(E, I) gdzie E to skoncony zbior, I to rodzina podzbiorow E spelniajaca:
+   1. Monotonicznosc: jesli A nalezy do I i B jest podzbiorem A, to B nalezy do I.
+   2. Wlasnosc wymiany: dla A,B z I gdzie |B|=|A|+1, istnieje e z B\A ze A+{e} nalezy do I.
+   Przyklad: MST — zbior krawedzi acyklicznych grafu jest matroidem => Kruskal jest optymalny.
+
+P: Kodowanie Huffmana — czym jest i dlaczego jest optymalne?
+O: Algorytm kompresji bezstratnej: przypisuje krotsze kody binarnym znakom czestszym, dluzsze rzadszym.
+   Oczekiwana dlugosc kodu rowna entropii rozkladu czestosci — nie mozna lepiej skompresowac.
+   Algorytm zachlanny Huffmana jest optymalny (udowodniono matematycznie).
+
+================================================================

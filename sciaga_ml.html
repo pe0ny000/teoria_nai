@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sciaga ML</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0d0f;--surface:#141417;--border:#2a2a35;
+    --accent1:#7fff6e;--accent2:#ff6e7f;--accent3:#6eaaff;
+    --accent4:#ffcc6e;--accent5:#cf6eff;--accent6:#6effda;
+    --text:#e8e8f0;--muted:#7a7a90;
+    --mono:'Space Mono',monospace;--display:'Syne',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;padding:2rem 1.5rem 4rem}
+  header{text-align:center;margin-bottom:3rem}
+  header h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1;
+    background:linear-gradient(135deg,var(--accent1),var(--accent3),var(--accent5));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--muted);font-family:var(--mono);font-size:0.75rem;margin-top:0.5rem;letter-spacing:0.1em;text-transform:uppercase}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,560px),1fr));gap:1.5rem;max-width:1300px;margin:0 auto}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.2s}
+  .section:hover{border-color:var(--accent-color)}
+  .section-header{padding:1rem 1.25rem;display:flex;align-items:center;gap:0.75rem;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+  .section-icon{width:32px;height:32px;border-radius:8px;background:var(--accent-color);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+  .section-title{font-size:0.95rem;font-weight:800;color:var(--accent-color);flex:1}
+  .section-count{font-family:var(--mono);font-size:0.65rem;color:var(--muted);background:rgba(255,255,255,0.05);padding:0.2em 0.5em;border-radius:4px}
+  .chevron{color:var(--muted);font-size:0.8rem;transition:transform 0.3s}
+  .section.open .chevron{transform:rotate(180deg)}
+  .questions{display:none;padding:0.5rem}
+  .section.open .questions{display:block}
+  .qa{border-radius:10px;margin-bottom:0.4rem;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s}
+  .qa:hover{border-color:rgba(255,255,255,0.08)}
+  .question{padding:0.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;font-size:0.85rem;font-weight:600;color:var(--text);background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.4}
+  .question:hover{background:rgba(255,255,255,0.06)}
+  .q-marker{font-family:var(--mono);font-size:0.65rem;color:var(--accent-color);background:rgba(127,255,110,0.08);padding:0.2em 0.4em;border-radius:4px;white-space:nowrap;margin-top:0.1em;flex-shrink:0}
+  .answer{display:none;padding:0.75rem 1rem 0.85rem;font-size:0.82rem;line-height:1.7;color:#c8c8d8;background:rgba(0,0,0,0.3);border-top:1px solid var(--border);font-family:var(--display)}
+  .qa.open .answer{display:block}
+  .answer code{font-family:var(--mono);font-size:0.78rem;background:rgba(255,255,255,0.08);padding:0.15em 0.4em;border-radius:4px;color:var(--accent-color)}
+  .answer .formula{font-family:var(--mono);font-size:0.78rem;background:rgba(255,255,255,0.06);border-left:3px solid var(--accent-color);padding:0.5rem 0.75rem;margin:0.5rem 0;border-radius:0 6px 6px 0;color:var(--accent3);white-space:pre-wrap}
+  .answer ul,.answer ol{padding-left:1.2rem;margin-top:0.3rem}
+  .answer li{margin-bottom:0.25rem}
+  .expand-all{font-family:var(--mono);font-size:0.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:0.4em 0.8em;border-radius:6px;cursor:pointer;margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;transition:border-color 0.2s,color 0.2s;text-transform:uppercase;letter-spacing:0.1em}
+  .expand-all:hover{border-color:var(--accent1);color:var(--accent1)}
+  .s1{--accent-color:var(--accent1)}.s2{--accent-color:var(--accent2)}.s3{--accent-color:var(--accent3)}
+  .s4{--accent-color:var(--accent4)}.s5{--accent-color:var(--accent5)}.s6{--accent-color:var(--accent6)}
+  .s7{--accent-color:#ff9f6e}.s8{--accent-color:#6effd4}.s9{--accent-color:#ff6ecc}
+  .s10{--accent-color:#ffe46e}.s11{--accent-color:#6eb5ff}.s12{--accent-color:#b5ff6e}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sciaga ML</h1>
+  <p>Pytania z wejsciowek i kolokwium — pogrupowane tematycznie</p>
+</header>
+<button class="expand-all" onclick="toggleAll()">&#9660; Rozwij wszystkie</button>
+<div class="grid" id="main"></div>
+<script>
+var data = [
+  { id:"s1", icon:"📐", title:"Podstawy ML — uczenie z/bez nadzoru, wektory", qs:[
+    { q:"Co to jest uczenie z nadzorem (supervised learning)?",
+      a:"Model uczy sie na przykladach z etykietami. Na podstawie zbioru {(xi, yi)} uczy sie przewidywac y dla nowych x. Przyklady: klasyfikacja spamu, przewidywanie cen." },
+    { q:"Czym jest uczenie bez nadzoru (unsupervised learning)?",
+      a:"Dane nie maja etykiet — brak atrybutu decyzyjnego. Algorytm sam szuka ukrytej struktury. Przyklady: grupowanie (k-means), redukcja wymiarowosci (PCA)." },
+    { q:"Roznice miedzy uczeniem z nadzorem a bez nadzoru",
+      a:"Z nadzorem: dane maja etykiety, cel to predykcja Y. Bez nadzoru: brak etykiet, cel to odkrycie struktury (grupy, reprezentacje). Uczenie bez nadzoru jest trudniejsze — brak obiektywnego kryterium jakosci (brak zlotego standardu)." },
+    { q:"Czym sie rozni regresja od klasyfikacji?",
+      a:"Regresja — wyjscie ciagle (np. cena, temperatura). Klasyfikacja — wyjscie dyskretne, przypisanie do klasy (spam/nie-spam). Przyklady regresji: cena nieruchomosci, ocena kredytowa, prognoza sprzedazy." },
+    { q:"Jak dane sa reprezentowane w formie wektorow?",
+      a:"Kazdy obiekt = wektor n-wymiarowy x = (x1, x2, ..., xn), gdzie kazda wspolrzedna to jeden atrybut. Zbior danych = macierz N x n." },
+    { q:"Oblicz dlugosc wektora trojwymiarowego",
+      a:"<div class='formula'>||v|| = sqrt(v1^2 + v2^2 + v3^2)</div>Np. dla v=(1,2,2): sqrt(1+4+4) = 3." },
+    { q:"Algorytm KNN — czym jest?",
+      a:"K Nearest Neighbors — klasyfikujemy nowy punkt patrzac na k najblizszych przykladow treningowych i przypisujac dominujaca klase. Odleglosc euklidesowa. Brak fazy uczenia — metoda leniwa." }
+  ]},
+  { id:"s2", icon:"🔌", title:"Perceptron — budowa, wagi, ograniczenia", qs:[
+    { q:"Czym jest perceptron i z czego jest zbudowany?",
+      a:"Model pojedynczego neuronu. Sklada sie z: wektora wejsc X=(x1..xn), wektora wag W=(w1..wn), progu aktywacji Theta, funkcji aktywacji.<div class='formula'>y = 1 gdy W*X >= Theta, inaczej y = 0</div>" },
+    { q:"Interpretacja geometryczna perceptronu",
+      a:"Wektor wag W jest wektorem normalnym do hiperplaszczyzny decyzyjnej, ktora rozgranicza klasy. Prog Theta wyznacza jak daleko hiperplaszczyzna jest odsunieta od poczatku ukladu. Perceptron aktywuje sie gdy X jest po tej samej stronie hiperplaszczyzny co W." },
+    { q:"Jakie sa ograniczenia pojedynczego perceptronu?",
+      a:"Rozdziela tylko klasy liniowo separowalne — dajace sie rozdzielic hiperplaszczyzna. XOR nie jest liniowo separowalny — perceptron go nie nauczy. AND i OR — tak." },
+    { q:"Regula Delta — wzor na aktualizacje wag",
+      a:"Po kazdym blednie sklasyfikowanym przykladzie:<div class='formula'>W' = W + (d - y) * alpha * X</div>d = oczekiwane wyjscie, y = aktualne, alpha = stala uczenia (0,1), X = wektor wejsc." },
+    { q:"Interpretacja geometryczna reguly Delta",
+      a:"Wzor W' = W + (d-y)*alpha*X przyciaga wektor W do pozytywnych przykladow X (gdy odpowiedz 0 zamiast 1 — za slaba aktywacja) i odpycha od negatywnych (gdy odpowiedz 1 zamiast 0 — zbyt mocna aktywacja)." },
+    { q:"Czym rozni sie perceptron ciagly od dyskretnego?",
+      a:"Dyskretny: y nalezy do {0,1} lub {-1,1} — funkcja progowa lub signum.<br>Ciagly: y nalezy do [0,1] lub [-1,1] — sigmoidalna lub liniowa. Ciagly jest rozniczkowalny — niezbedny dla backpropagation." },
+    { q:"Zaleta i wada lokalnej reprezentacji warstwy perceptronow",
+      a:"Zaleta: latwa interpretowalnosc — kazdy neuron odpowiada za konkretna ceche/klase.<br>Wada: wymaga wielu neuronow (jeden na klase), malo efektywne dla duzych zbiorow." }
+  ]},
+  { id:"s3", icon:"⚡", title:"Funkcje aktywacji, ewaluacja, precyzja, pelnosc", qs:[
+    { q:"Do czego sluzy funkcja aktywacji? Podaj przyklady (nazwa + wzor)",
+      a:"Okresla jak wyjscie neuronu zalezy od sumy wazonej wejsc (net). Wprowadza nieliniowosci.<div class='formula'>Signum:       y = sign(net)  => {-1, 1}\nProgowa:      y = 1 jesli net > 0, else 0\nSigmoidalna:  y = 1 / (1 + e^(-net))\nLiniowa:      y = net</div>" },
+    { q:"Czym jest macierz pomylek i do czego sluzy?",
+      a:"Pokazuje ile przypadkow zostalo prawidlowo/nieprawidlowo sklasyfikowanych dla kazdej kombinacji klasy rzeczywistej i przewidywanej. Umozliwia obliczenie precyzji, pelnosci i F-miary. Dziala dla dowolnej liczby klas." },
+    { q:"Precyzja i Pelnosc — definicje i wzory",
+      a:"Tylko dla 2 klas (pozytywna / negatywna):<div class='formula'>Precyzja P = TP / (TP + FP)\nPelnosc  R = TP / (TP + FN)</div>P = ile z zaklasyfikowanych jako pozytywne jest naprawde pozytywnych.<br>R = ile z faktycznie pozytywnych zostalo wykrytych." },
+    { q:"F-miara — co to jest i wzor",
+      a:"P i R sa sprzeczne — poprawa jednej zwykle pogarsza druga. F-miara laczy obie w jedna liczbe:<div class='formula'>F = 2 * P * R / (P + R)</div>Jest to srednia harmoniczna P i R. Jesli F jest wysoka, obie miary musza byc wysokie." },
+    { q:"Jakie sa wady precyzji jako jedynej miary ewaluacji?",
+      a:"Precyzja ignoruje False Negatives — przypadki gdy model nie wykryl pozytywnych przykladow. Przy niezbalansowanych danych (99% klasy A) wysoka precyzja moze maskowac zly model. Dlatego stosuje sie F-miare lub macierz pomylek." }
+  ]},
+  { id:"s4", icon:"🧠", title:"Sieci neuronowe — warstwy, backprop, gradient, wieloklasyfikacja", qs:[
+    { q:"Czym jest warstwa ukryta i dlaczego tak sie nazywa?",
+      a:"Kazda warstwa miedzy wejsciowa a wyjsciowa. Ukryta — bo nie wiemy jaka powinna byc jej poprawna odpowiedz (etykiety mamy tylko dla wyjscia). Warstwy ukryte ucza sie reprezentacji posrednich." },
+    { q:"Metoda wstecznej propagacji bledu — czym jest?",
+      a:"Algorytm uczenia sieci wielowarstwowych. Wagi modyfikowane od warstwy ostatniej do pierwszej (wstecz), uzywajac reguly lancuchowej do obliczenia gradientow bledu wzgledem wag kazdej warstwy." },
+    { q:"Wzor na blad neuronu ciagrego",
+      a:"<div class='formula'>E = (1/2) * (d - y)^2  =  (1/2) * (d - f(W*X))^2</div>d = oczekiwane wyjscie, y = aktualne. Wspolczynnik 1/2 upraszcza pochodna." },
+    { q:"Metoda gradientu — czym jest i gdzie sie stosuje?",
+      a:"Minimalizuje funkcje bledu idac w kierunku przeciwnym do gradientu:<div class='formula'>W_new = W_old - eta * grad_E(W)</div>Stosowana w uczeniu sieci neuronowych, regresji logistycznej, SVM." },
+    { q:"Jak dziala wieloklasyfikacja przy pomocy jednowarstwowej sieci?",
+      a:"Kazdy perceptron klasyfikuje do 2 klas. Dla wiecej klas: uzywamy warstwy perceptronow (jeden na klase). Kazde wejscie podlaczone do kazdego perceptrona. Decyzja = klasa neuronu ktory sie maksymalnie aktywuje. Mozna uzyc ciaglych neuronow zamiast dyskretnych — bardziej odporne na jednoczesna aktywacje wielu neuronow." },
+    { q:"Co wnosi wielowarstwowsc do sieci neuronowej?",
+      a:"Jedna warstwa — tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest UNIWERSALNYM APROKSYMATOREM — moze aproksymowac dowolna funkcje." },
+    { q:"Ograniczenia jednowarstwowej sieci neuronowej",
+      a:"Moze tworzyc tylko liniowe granice decyzji — jak pojedynczy perceptron. Nie poradzi sobie z XOR ani danymi w ksztalcie pierscienia. Std potrzeba warstw ukrytych." }
+  ]},
+  { id:"s5", icon:"🎲", title:"Naiwny Bayes, przetrenowanie, wygładzanie", qs:[
+    { q:"Wzor Bayesa",
+      a:"<div class='formula'>P(Y=y | X=x) = P(X=x | Y=y) * P(Y=y) / P(X=x)</div>Prawdopodobienstwo klasy y pod warunkiem obserwacji x." },
+    { q:"Co czyni naiwny klasyfikator Bayesa naiwnym?",
+      a:"Zalozenie ze wszystkie atrybuty sa parami NIEZALEZNE:<div class='formula'>P(X=(x1..xn)|Y=y) = P(X1=x1|Y=y) * ... * P(Xn=xn|Y=y)</div>Szacujemy kazdy atrybut osobno — znacznie prostsze obliczeniowo. W praktyce zakladzie rzadko zachodzi." },
+    { q:"Czym jest przetrenowanie (overfitting)?",
+      a:"Model zapamietal zbior treningowy zamiast ogolnych wzorcow. Niski blad treningowy, wysoki testowy. Rozwiazania: pruning, walidacja krzyzowa, regularyzacja, wiecej danych." },
+    { q:"Czym jest walidacja krzyzowa?",
+      a:"Dane dzielimy na k foldow. W k rundach kolejno jeden fold = test, reszta = trening. Wyniki usredniamy. Lepiej ocenia generalizacje niz pojedynczy podzial." },
+    { q:"Na czym polega wygładzanie (smoothing) w naiwnym Bayesie?",
+      a:"Jesli atrybut nie wystapil dla danej klasy w zbiorze treningowym, P=0 i zeruje caly iloczyn. Wygładzanie Laplace'a: dodaj 1 do licznika i liczbe mozliwych wartosci do mianownika. P nigdy nie rowna sie dokladnie 0." }
+  ]},
+  { id:"s6", icon:"🌳", title:"Drzewa decyzyjne, zlozonosc modelu, black box", qs:[
+    { q:"Do czego sluzy drzewo decyzyjne?",
+      a:"Model klasyfikacji/regresji podejmujacy decyzje przez sekwencje pytan o atrybuty. Wezly = testy atrybutow, liscie = klasy. Glowna zaleta: interpretowalnosc." },
+    { q:"Do czego sluzy entropia w drzewach decyzyjnych?",
+      a:"Mierzy czystosc podzialu danych. Wybieramy atrybut ktory minimalizuje entropie (maksymalizuje zysk informacji). Entropia=0 gdy wszystkie przyklady naleza do jednej klasy." },
+    { q:"Czym jest pruning?",
+      a:"Upraszcza drzewo przez usuwanie galezi ktore nie poprawiaja jakosci. Zapobiega przetrenowaniu. C4.5 stosuje pruning automatycznie. Cost complexity: minimalizuje RSS + alfa*|T|." },
+    { q:"Czym sa reguly decyzyjne?",
+      a:"Alternatywna forma reprezentacji wiedzy: reguly postaci IF [warunki] THEN [klasa]. Czytelne dla czlowieka, jak drzewa. Algorytmy indukcji regul ucza sie ich ze zbioru treningowego. Przyklad: IF pogoda=slonecznie AND wilgotnosc=normalna THEN graj=tak." },
+    { q:"Co to jest model black box i kiedy jest problemem?",
+      a:"Model black box (np. wielowarstwowa siec neuronowa) jest skuteczny, ale wiedza jest reprezentowana nieczytelnie (wagi polaczen). Nie mozna wytlumaczyc decyzji. Problem gdy wymagana jest interpretowalnosc (medycyna, prawo, finanse). Alternatywy: drzewa i reguly decyzyjne." },
+    { q:"Zlozonosc modelu — bias-variance tradeoff",
+      a:"Za prosty model: underfitting — wysoki blad na treningowych i testowych (high bias, low variance).<br>Za zlozony model: overfitting — niski blad treningowy, wysoki testowy (low bias, high variance).<br>Optimum: srodkowa zlozonosc modelu minimalizujaca blad testowy." },
+    { q:"Jedna zaleta i jedna wada drzew decyzyjnych",
+      a:"Zaleta: wysoka interpretowalnosc — wiedza zrozumiala dla czlowieka.<br>Wada: podatnosc na przetrenowanie i niestabilnosc — male zmiany danych moga zmienic cala strukture drzewa." },
+    { q:"Przykladowe warunki zakonczenia budowy drzewa",
+      a:"<ul><li>Wszystkie przyklady naleza do tej samej klasy (entropia=0)</li><li>Osiagnieto maksymalna glebokosc</li><li>Liczba przykladow ponizej progu minimalnego</li><li>Zysk informacji kolejnego podzialu ponizej progu</li></ul>" }
+  ]},
+  { id:"s7", icon:"🔵", title:"Grupowanie — k-means, hierarchiczne, klastry", qs:[
+    { q:"Cel algorytmu grupowania (clustering)",
+      a:"Podzielic N obiektow na k grup: obiekty wewnatrz grupy mozliwie podobne, z roznych grup mozliwie rozne. Uczenie bez nadzoru — brak etykiet." },
+    { q:"Jak dziala algorytm k-means?",
+      a:"1. Losowo przypisz kazdy punkt do jednej z k grup.<br>2. Oblicz centroid kazdej grupy (srednia wektorow).<br>3. Przypisz kazdy punkt do grupy z najblizszym centroidem.<br>4. Powtarzaj 2-3 az do braku zmian. Minimalizuje sume kwadratow odleglosci od centroidow." },
+    { q:"Podaj dwie metody obliczania odleglosci miedzy klastrami",
+      a:"<ul><li>Single linkage (min): minimalna odleglosc miedzy para punktow z roznych klastrow</li><li>Complete linkage (max): maksymalna odleglosc miedzy para punktow</li><li>Average linkage: srednia odleglosc miedzy wszystkimi parami</li><li>Centroid linkage: odleglosc miedzy centroidami</li></ul>" },
+    { q:"Ograniczenie k-means — problem z ksztaltem C",
+      a:"K-means dzieli dane liniowo — nie potrafi rozdzielic ksztaltow niekonweksowych (pierscien, litera C). Klastry oddzielone hiperplaszczyzna niezaleznie od faktycznego ksztaltu. Fundamentalne ograniczenie k-means." },
+    { q:"Czym jest grupowanie hierarchiczne?",
+      a:"Algorytm aglomeracyjny (bottom-up):<br>1. Start: kazdy punkt = osobny klaster (N klastrow)<br>2. Polacz dwa najblizsze klastry<br>3. Powtarzaj az zostanie 1 klaster<br>Wynik: dendrogram — drzewo hierarchii polaczen. Liczbe klastrow wybieramy po zbudowaniu, tnac dendrogram na wybranej wysokosci." },
+    { q:"Co to jest dendrogram?",
+      a:"Drzewo hierarchii polaczen klastrow. Os Y = odleglosc przy ktorej klastry zostaly polaczone. Punkty laczace sie nisko sa podobne. Aby uzyskac k klastrow — tniemy dendrogram na wybranej wysokosci." }
+  ]},
+  { id:"s8", icon:"🌿", title:"PCA i uczenie bez nadzoru", qs:[
+    { q:"Czym jest PCA (Principal Component Analysis)?",
+      a:"Metoda redukcji wymiarowosci (uczenie bez nadzoru). Szuka kierunkow o maksymalnej wariancji w danych (glowne skladowe), parami niezaleznych. Rzutuje dane na te kierunki zachowujac jak najwiecej informacji.<br>Zastosowania: wizualizacja danych wielowymiarowych, preprocessing przed uczeniem nadzorowanym." },
+    { q:"Jaka jest roznica miedzy PCA a clusteringiem?",
+      a:"PCA: szuka niskowymiarowej reprezentacji (nowe wspolrzedne — kombinacje zmiennych wyjasniajace wariancje).<br>Clustering: szuka jednorodnych podgrup (przypisanie punktow do grup).<br>Oba to uczenie bez nadzoru, ale rozwiazuja inne zadania." },
+    { q:"Dlaczego uczenie bez nadzoru jest trudniejsze niz z nadzorem?",
+      a:"Brak zlotego standardu — nie ma zmiennej odpowiedzi Y ani jednego obiektywnego kryterium (jak test set accuracy). Wiele mozliwych interpretacji tej samej struktury. Wyniki sa bardziej subiektywne." }
+  ]},
+  { id:"s9", icon:"🎒", title:"Optymalizacja — brute-force, zachlanne, plecak, TSP, HC", qs:[
+    { q:"Co to jest metoda silowa (brute-force)?",
+      a:"Generuj wszystkie mozliwe rozwiazania, sprawdz kazde, zwroc optymalne. Zawsze znajduje optimum, ale zlozonosc niepraktycznie wysoka: 2^n dla plecaka, n! dla komiwojazera." },
+    { q:"Problem plecakowy — ile rozwiazania przeszukuje brute-force?",
+      a:"Dla n przedmiotow: <strong>2^n</strong> mozliwych podzbiorow (kazdy przedmiot albo jest w plecaku albo nie)." },
+    { q:"Kontrprzyklad dla zachlannego w problemie plecakowym",
+      a:"Pojemnosc=10. A(waga=6, wartosc=6), B(waga=5, wartosc=5), C(waga=5, wartosc=5).<br>Zachlanne: A => wartosc=6.<br>Optymalne: B+C => wartosc=10." },
+    { q:"Podejscie zachlanne do komiwojazera (TSP)",
+      a:"Nearest Neighbor: zacznij od dowolnego miasta, idz do najblizszego nieodwiedzonego. Szybkie, ale nie gwarantuje optymalnosci — trasa moze byc znaczaco dluzsza od optymalnej." },
+    { q:"Zalety i wady przeszukiwania lokalnego",
+      a:"Zalety: uniwersalne, akceptowalna zlozonosc czasowa.<br>Wady: brak gwarancji optymalnosci globalnej — optimum lokalne. Nie wiemy jak daleko od globalnego." },
+    { q:"Algorytm wspinaczkowy HC — pseudokod",
+      a:"<div class='formula'>current = losowe rozwiazanie dopuszczalne\nwhile (istnieje lepszy sasiad):\n  current = najlepszy sasiad\nreturn current</div>Zawsze idzie do gory. Zatrzymuje sie w pierwszym optimum lokalnym." },
+    { q:"Ulepszenia algorytmu wspinaczkowego (HC)",
+      a:"<ul><li>Random restart: uruchamiaj HC wielokrotnie z roznych startow, wybierz najlepsze</li><li>Beam search: pamietaj k biezacych rozwiazania i rozpatruj k najlepszych ruchow jednoczesnie</li><li>Simulated Annealing: pozwol na gorsze ruchy z malejacym prawdopodobienstwem</li></ul>" },
+    { q:"4 pozadane wlasnosci relacji sasiedztwa",
+      a:"<ul><li>Spojnosc: z kazdego rozwiazania mozna dotrzec do kazdego innego</li><li>Minimalna roznica sasiadow: roznia sie jak najmniej (koszt bliski)</li><li>Mala liczba sasiadow: efektywny wybor najlepszego w kazdej iteracji</li><li>Mala srednica: mala maks. liczba iteracji</li></ul>" },
+    { q:"Jak zaproponowac relacje sasiedztwa dla problemu plecakowego?",
+      a:"Dobra relacja: sasiad = rozwiazanie rozniace sie dodaniem lub usunieciem dokladnie JEDNEGO przedmiotu (o ile nowe rozwiazanie jest dopuszczalne). Spelnia: mala roznica, mala liczba sasiadow (n sasiadow), spójnosc." },
+    { q:"Specyfikacja problemu plecakowego",
+      a:"Wejscie: n przedmiotow o wagach w_i i wartosciach c_i, pojemnosc plecaka W.<br>Wyjscie: podzbioru o maks. lacznej wartosci przy lacznej wadze &lt;= W." },
+    { q:"Problem minimalnego drzewa rozpinajacego (MST)",
+      a:"Wejscie: nieskierowany spojny graf G=(V,E) z wagami na krawedziach.<br>Wyjscie: spojny podgraf zawierajacy wszystkie wierzcholki o minimalnej sumie wag (musi byc drzewem). Algorytmy: Kruskal, Prim — oba zachlanne i optymalne." }
+  ]},
+  { id:"s10", icon:"🔥", title:"Symulowane wychladzanie (SA)", qs:[
+    { q:"Czym jest symulowane wychladzanie (Simulated Annealing)?",
+      a:"Ulepszenie HC — pozwala na chwilowe przejscie do GORSZEGO rozwiazania by uciec z optimum lokalnego.<div class='formula'>current = losowe rozwiazanie\nwhile (stopCondition):\n  candidate = losowy sasiad(current)\n  if f(candidate) lepszy niz f(current):\n    current = candidate\n  else:\n    current = candidate z prawdopodob. P(temp)\n  obniz temperature\nreturn best_seen_solution</div>Prawdopodobienstwo przyjecia gorszego ruchu maleje z temperatura. Analogia: powolne wychladzanie metalu = lepszy krysztal." },
+    { q:"Dlaczego SA jest lepsze od HC?",
+      a:"HC zawsze idzie do gory — zatrzymuje sie w pierwszym optimum lokalnym. SA moze przyjac gorszy ruch z pewnym prawdopodobienstwem, dzieki czemu moze wydostac sie z pulapki lokalnej. SA tez nie gwarantuje optimum globalnego, ale daje wieksze szanse." }
+  ]},
+  { id:"s11", icon:"🌲", title:"Ensemble — Bagging, Random Forest, Boosting", qs:[
+    { q:"Czym jest bagging?",
+      a:"Bootstrap Aggregation — redukuje wariancje przez usrednianie.<div class='formula'>y_bag(x) = (1/B) * suma y_b(x)</div>Tworzymy B bootstrapowanych kopii danych (losowanie ze zwracaniem). Na kazdej trenujemy drzewo. Dla klasyfikacji: glosowanie wiekszosciowe." },
+    { q:"Czym jest Random Forest i czym rozni sie od baggingu?",
+      a:"RF = bagging + przy kazdym podziale wezla losujemy m atrybutow (nie wszystkie p).<div class='formula'>Typowo: m ≈ sqrt(p)</div>Cel: dekorelacja drzew. Gdy jeden atrybut dominuje, bagging daje podobne drzewa. RF temu zapobiega." },
+    { q:"Czym jest boosting?",
+      a:"Uczy drzewa sekwencyjnie — kazde kolejne koncentruje sie na przykladach zle sklasyfikowanych przez poprzednie. Roznica od baggingu: rownolegle niezalezne vs sekwencyjne zalezne. Moze przetrenowac przy zbyt duzym B." },
+    { q:"Zalety i wady ensemble vs pojedyncze drzewo",
+      a:"Zalety: znacznie wyzsza dokladnosc predykcji, mniejsza wariancja, odpornosc na przetrenowanie.<br>Wady: utrata interpretowalnosci — black box, nie mozna wytlumaczyc decyzji jednym drzewem." }
+  ]},
+  { id:"s12", icon:"🧮", title:"Matroidy, Huffman, kiedy zachlanne jest optymalne", qs:[
+    { q:"Kiedy algorytm zachlanny gwarantuje optimum globalne?",
+      a:"Gdy problem ma strukture matroidu — twierdzenie Rado-Edmondsa. Jezeli struktura problemu jest matroidem, to prosty algorytm zachlanny (sortuj malejaco, dodawaj element jesli rozwiazanie pozostaje dopuszczalne) zawsze znajdzie optimum." },
+    { q:"Co to jest matroid?",
+      a:"Para M=(E, I) gdzie E to skoncony zbior, I to rodzina podzbiorow E spelniajaca:<br>1. Monotonicznosc: jesli A nalezy do I i B jest podzbiorem A, to B nalezy do I.<br>2. Wlasnosc wymiany: dla A,B z I gdzie |B|=|A|+1, istnieje e z B\\A taki ze A+{e} nalezy do I.<br>Uogolnienie pojecia niezaleznosci liniowej." },
+    { q:"Twierdzenie Rado-Edmondsa — idea",
+      a:"Jezeli M=(E,I) jest matroidem i koszt rozwiazania to suma wartosci elementow, to algorytm zachlanny (sortuj malejaco, dodawaj jesli dopuszczalne) zawsze znajdzie maksymalny zbior niezalezny — czyli rozwiazanie optymalne. Przyklad: MST jest matroidem => algorytm Kruskala jest optymalny." },
+    { q:"Kodowanie Huffmana — czym jest i dlaczego jest optymalne?",
+      a:"Algorytm kompresji bezstratnej: przypisuje krotsze kody binarnym znakom czestszym, dluzsze rzadszym. Oczekiwana dlugosc kodu rowna entropii rozkladu czestosci — nie mozna lepiej skompresowac. Algorytm zachlanny Huffmana jest optymalny (udowodniono), mimo ze problem nie spelnia zakladzen Rado-Edmondsa bezposrednio." }
+  ]}
+];
+
+function build() {
+  var container = document.getElementById('main');
+  data.forEach(function(section) {
+    var div = document.createElement('div');
+    div.className = 'section ' + section.id;
+    var qsHtml = section.qs.map(function(item, i) {
+      return '<div class="qa">' +
+        '<div class="question" onclick="toggleQA(this.parentElement)">' +
+        '<span>' + item.q + '</span>' +
+        '<span class="q-marker">Q' + (i+1) + '</span>' +
+        '</div>' +
+        '<div class="answer">' + item.a + '</div>' +
+        '</div>';
+    }).join('');
+    div.innerHTML =
+      '<div class="section-header" onclick="toggleSection(this.parentElement)">' +
+        '<div class="section-icon">' + section.icon + '</div>' +
+        '<div class="section-title">' + section.title + '</div>' +
+        '<span class="section-count">' + section.qs.length + ' pyt.</span>' +
+        '<span class="chevron">&#9660;</span>' +
+      '</div>' +
+      '<div class="questions">' + qsHtml + '</div>';
+    container.appendChild(div);
+  });
+  document.querySelector('.section').classList.add('open');
+}
+
+function toggleSection(el) { el.classList.toggle('open'); }
+function toggleQA(el) { el.classList.toggle('open'); }
+
+var allOpen = false;
+function toggleAll() {
+  allOpen = !allOpen;
+  document.querySelectorAll('.section').forEach(function(s) {
+    if (allOpen) s.classList.add('open'); else s.classList.remove('open');
+  });
+  document.querySelector('.expand-all').textContent = allOpen ? '▲ Zwiń wszystkie' : '▼ Rozwiń wszystkie';
+}
+
+build();
+</script>
+</body>
+</html>
