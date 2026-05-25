@@ -15,11 +15,37 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;padding:2rem 1.5rem 4rem}
-  header{text-align:center;margin-bottom:3rem}
+
+  /* HEADER */
+  header{text-align:center;margin-bottom:2rem}
   header h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1;
     background:linear-gradient(135deg,var(--accent1),var(--accent3),var(--accent5));
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
   header p{color:var(--muted);font-family:var(--mono);font-size:0.75rem;margin-top:0.5rem;letter-spacing:0.1em;text-transform:uppercase}
+
+  /* MODE TABS */
+  .mode-tabs{display:flex;justify-content:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+  .mode-tab{font-family:var(--mono);font-size:0.7rem;background:transparent;border:1px solid var(--border);
+    color:var(--muted);padding:0.5em 1.2em;border-radius:6px;cursor:pointer;
+    transition:all 0.2s;text-transform:uppercase;letter-spacing:0.08em}
+  .mode-tab:hover{border-color:var(--accent3);color:var(--accent3)}
+  .mode-tab.active{border-color:var(--accent1);color:var(--accent1);background:rgba(127,255,110,0.06)}
+
+  /* SEARCH */
+  .search-bar{max-width:500px;margin:0 auto 1.5rem;position:relative}
+  .search-bar input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:0.7rem 1rem 0.7rem 2.5rem;color:var(--text);font-family:var(--mono);font-size:0.8rem;outline:none;
+    transition:border-color 0.2s}
+  .search-bar input:focus{border-color:var(--accent3)}
+  .search-bar input::placeholder{color:var(--muted)}
+  .search-icon{position:absolute;left:0.8rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;pointer-events:none}
+  .search-count{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-align:center;margin-bottom:1rem;min-height:1rem}
+
+  /* BROWSE MODE */
+  .expand-all{font-family:var(--mono);font-size:0.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:0.4em 0.8em;border-radius:6px;cursor:pointer;margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;
+    transition:border-color 0.2s,color 0.2s;text-transform:uppercase;letter-spacing:0.1em}
+  .expand-all:hover{border-color:var(--accent1);color:var(--accent1)}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,560px),1fr));gap:1.5rem;max-width:1300px;margin:0 auto}
   .section{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color 0.2s}
   .section:hover{border-color:var(--accent-color)}
@@ -33,21 +59,93 @@
   .section.open .questions{display:block}
   .qa{border-radius:10px;margin-bottom:0.4rem;overflow:hidden;border:1px solid transparent;transition:border-color 0.2s}
   .qa:hover{border-color:rgba(255,255,255,0.08)}
-  .question{padding:0.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;font-size:0.85rem;font-weight:600;color:var(--text);background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.4}
+  .qa.hidden{display:none}
+  .question{padding:0.7rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;
+    font-size:0.85rem;font-weight:600;color:var(--text);background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.4}
   .question:hover{background:rgba(255,255,255,0.06)}
-  .q-marker{font-family:var(--mono);font-size:0.65rem;color:var(--accent-color);background:rgba(127,255,110,0.08);padding:0.2em 0.4em;border-radius:4px;white-space:nowrap;margin-top:0.1em;flex-shrink:0}
-  .answer{display:none;padding:0.75rem 1rem 0.85rem;font-size:0.82rem;line-height:1.7;color:#c8c8d8;background:rgba(0,0,0,0.3);border-top:1px solid var(--border);font-family:var(--display)}
+  .q-marker{font-family:var(--mono);font-size:0.65rem;color:var(--accent-color);background:rgba(127,255,110,0.08);
+    padding:0.2em 0.4em;border-radius:4px;white-space:nowrap;margin-top:0.1em;flex-shrink:0}
+  .answer{display:none;padding:0.75rem 1rem 0.85rem;font-size:0.82rem;line-height:1.7;color:#c8c8d8;
+    background:rgba(0,0,0,0.3);border-top:1px solid var(--border);font-family:var(--display)}
   .qa.open .answer{display:block}
   .answer code{font-family:var(--mono);font-size:0.78rem;background:rgba(255,255,255,0.08);padding:0.15em 0.4em;border-radius:4px;color:var(--accent-color)}
-  .answer .formula{font-family:var(--mono);font-size:0.78rem;background:rgba(255,255,255,0.06);border-left:3px solid var(--accent-color);padding:0.5rem 0.75rem;margin:0.5rem 0;border-radius:0 6px 6px 0;color:var(--accent3);white-space:pre-wrap}
+  .answer .formula{font-family:var(--mono);font-size:0.78rem;background:rgba(255,255,255,0.06);border-left:3px solid var(--accent-color);
+    padding:0.5rem 0.75rem;margin:0.5rem 0;border-radius:0 6px 6px 0;color:var(--accent3);white-space:pre-wrap}
   .answer ul,.answer ol{padding-left:1.2rem;margin-top:0.3rem}
   .answer li{margin-bottom:0.25rem}
-  .expand-all{font-family:var(--mono);font-size:0.7rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:0.4em 0.8em;border-radius:6px;cursor:pointer;margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;transition:border-color 0.2s,color 0.2s;text-transform:uppercase;letter-spacing:0.1em}
-  .expand-all:hover{border-color:var(--accent1);color:var(--accent1)}
+  .section-hidden{display:none}
+  .highlight{background:rgba(127,255,110,0.2);border-radius:2px;color:#fff}
+
+  /* SECTION COLORS */
   .s1{--accent-color:var(--accent1)}.s2{--accent-color:var(--accent2)}.s3{--accent-color:var(--accent3)}
   .s4{--accent-color:var(--accent4)}.s5{--accent-color:var(--accent5)}.s6{--accent-color:var(--accent6)}
   .s7{--accent-color:#ff9f6e}.s8{--accent-color:#6effd4}.s9{--accent-color:#ff6ecc}
   .s10{--accent-color:#ffe46e}.s11{--accent-color:#6eb5ff}.s12{--accent-color:#b5ff6e}
+
+  /* LEARN MODE */
+  #learn-mode,#exam-mode{display:none;max-width:700px;margin:0 auto}
+  .learn-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;position:relative}
+  .learn-section-badge{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem}
+  .learn-question{font-size:1.1rem;font-weight:700;line-height:1.5;margin-bottom:1.5rem;min-height:60px}
+  .learn-answer-box{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:12px;padding:1.25rem;
+    font-size:0.85rem;line-height:1.7;color:#c8c8d8;text-align:left;margin-bottom:1.5rem;display:none}
+  .learn-answer-box .formula{font-family:var(--mono);font-size:0.75rem;background:rgba(255,255,255,0.06);
+    border-left:3px solid var(--accent1);padding:0.4rem 0.7rem;margin:0.4rem 0;border-radius:0 5px 5px 0;color:var(--accent3);white-space:pre-wrap}
+  .learn-btns{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap}
+  .btn{font-family:var(--mono);font-size:0.72rem;padding:0.6em 1.4em;border-radius:8px;cursor:pointer;
+    border:1px solid;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.07em;font-weight:700}
+  .btn-ghost{background:transparent;border-color:var(--border);color:var(--muted)}
+  .btn-ghost:hover{border-color:var(--accent3);color:var(--accent3)}
+  .btn-primary{background:rgba(127,255,110,0.1);border-color:var(--accent1);color:var(--accent1)}
+  .btn-primary:hover{background:rgba(127,255,110,0.2)}
+  .btn-skip{background:rgba(255,110,127,0.08);border-color:var(--accent2);color:var(--accent2)}
+  .btn-skip:hover{background:rgba(255,110,127,0.18)}
+  .learn-progress{font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:1.25rem}
+  .progress-bar{height:3px;background:var(--border);border-radius:3px;margin-bottom:1.25rem;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent3));border-radius:3px;transition:width 0.4s ease}
+  .learn-filter{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+  .filter-btn{font-family:var(--mono);font-size:0.65rem;background:transparent;border:1px solid var(--border);
+    color:var(--muted);padding:0.3em 0.8em;border-radius:5px;cursor:pointer;transition:all 0.15s;text-transform:uppercase}
+  .filter-btn.on{border-color:var(--accent1);color:var(--accent1);background:rgba(127,255,110,0.06)}
+  .learn-done{text-align:center;padding:2rem}
+  .learn-done h2{font-size:2rem;margin-bottom:0.5rem;color:var(--accent1)}
+  .learn-done p{color:var(--muted);font-family:var(--mono);font-size:0.75rem}
+
+  /* EXAM MODE */
+  .exam-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2rem}
+  .exam-q{font-size:1.1rem;font-weight:700;line-height:1.5;margin-bottom:0.5rem}
+  .exam-section-badge{font-family:var(--mono);font-size:0.62rem;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.08em}
+  .exam-textarea{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;
+    padding:1rem;color:var(--text);font-family:var(--display);font-size:0.85rem;line-height:1.6;
+    resize:vertical;min-height:120px;outline:none;margin:1rem 0;transition:border-color 0.2s}
+  .exam-textarea:focus{border-color:var(--accent3)}
+  .exam-answer-reveal{background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:10px;
+    padding:1rem;font-size:0.82rem;line-height:1.7;color:#c8c8d8;margin:1rem 0;display:none}
+  .exam-answer-reveal .formula{font-family:var(--mono);font-size:0.75rem;background:rgba(255,255,255,0.06);
+    border-left:3px solid var(--accent1);padding:0.4rem 0.7rem;margin:0.4rem 0;border-radius:0 5px 5px 0;color:var(--accent3);white-space:pre-wrap}
+  .exam-verdict{display:none;flex-direction:column;gap:0.5rem;margin-top:1rem}
+  .verdict-label{font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem}
+  .verdict-btns{display:flex;gap:0.5rem}
+  .btn-correct{background:rgba(127,255,110,0.1);border-color:var(--accent1);color:var(--accent1)}
+  .btn-correct:hover{background:rgba(127,255,110,0.25)}
+  .btn-wrong{background:rgba(255,110,127,0.1);border-color:var(--accent2);color:var(--accent2)}
+  .btn-wrong:hover{background:rgba(255,110,127,0.25)}
+  .exam-score-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+  .score-pill{font-family:var(--mono);font-size:0.65rem;padding:0.25em 0.7em;border-radius:4px}
+  .score-good{background:rgba(127,255,110,0.1);color:var(--accent1);border:1px solid var(--accent1)}
+  .score-bad{background:rgba(255,110,127,0.1);color:var(--accent2);border:1px solid var(--accent2)}
+  .exam-summary{text-align:center;padding:2rem}
+  .exam-summary h2{font-size:2.5rem;font-weight:800;margin-bottom:0.5rem}
+  .exam-summary .score-label{font-family:var(--mono);font-size:0.75rem;color:var(--muted)}
+  .exam-summary .missed-list{text-align:left;margin-top:1.5rem;font-size:0.82rem}
+  .missed-item{background:rgba(255,110,127,0.06);border:1px solid rgba(255,110,127,0.2);border-radius:8px;
+    padding:0.6rem 0.9rem;margin-bottom:0.4rem;color:#c8c8d8}
+  .missed-q{font-weight:700;color:var(--text);margin-bottom:0.2rem;font-size:0.83rem}
+  .missed-a{font-size:0.78rem;color:var(--muted)}
+  .exam-num-select{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+  .num-btn{font-family:var(--mono);font-size:0.7rem;background:transparent;border:1px solid var(--border);
+    color:var(--muted);padding:0.35em 0.9em;border-radius:6px;cursor:pointer;transition:all 0.15s}
+  .num-btn.on{border-color:var(--accent4);color:var(--accent4);background:rgba(255,204,110,0.06)}
 </style>
 </head>
 <body>
@@ -55,8 +153,120 @@
   <h1>Teoria NAI</h1>
   <p>Pytania i odpowiedzi</p>
 </header>
-<button class="expand-all" onclick="toggleAll()">&#9660; Rozwij wszystkie</button>
-<div class="grid" id="main"></div>
+
+<!-- MODE TABS -->
+<div class="mode-tabs">
+  <button class="mode-tab active" onclick="setMode('browse')">📚 Przeglądaj</button>
+  <button class="mode-tab" onclick="setMode('learn')">🎴 Fiszki</button>
+  <button class="mode-tab" onclick="setMode('exam')">✍️ Egzamin</button>
+</div>
+
+<!-- SEARCH (visible in browse) -->
+<div class="search-bar" id="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" id="search-input" placeholder="Szukaj pytania lub słowa kluczowego..." oninput="doSearch(this.value)">
+</div>
+<div class="search-count" id="search-count"></div>
+
+<!-- BROWSE MODE -->
+<div id="browse-mode">
+  <button class="expand-all" onclick="toggleAll()">&#9660; Rozwiń wszystkie</button>
+  <div class="grid" id="main"></div>
+</div>
+
+<!-- LEARN MODE -->
+<div id="learn-mode">
+  <div style="margin-bottom:1rem">
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Filtruj sekcje</p>
+    <div class="learn-filter" id="learn-filter"></div>
+  </div>
+  <div class="learn-card" id="learn-card">
+    <div class="learn-progress" id="learn-progress"></div>
+    <div class="progress-bar"><div class="progress-fill" id="learn-bar"></div></div>
+    <div class="learn-section-badge" id="learn-badge"></div>
+    <div class="learn-question" id="learn-q"></div>
+    <div class="learn-answer-box" id="learn-a"></div>
+    <div class="learn-btns" id="learn-btns">
+      <button class="btn btn-primary" id="learn-reveal-btn" onclick="learnReveal()">Pokaż odpowiedź</button>
+      <button class="btn btn-skip" onclick="learnSkip()">Pomiń →</button>
+    </div>
+    <div class="learn-btns" id="learn-after-btns" style="display:none">
+      <button class="btn btn-correct" onclick="learnNext(true)">✓ Umiem</button>
+      <button class="btn btn-wrong" onclick="learnNext(false)">✗ Nie umiem</button>
+      <button class="btn btn-skip" onclick="learnSkip()">Pomiń →</button>
+    </div>
+  </div>
+  <div class="learn-done" id="learn-done" style="display:none">
+    <div style="font-size:3rem;margin-bottom:1rem" id="learn-done-emoji">🎉</div>
+    <h2>Koniec sesji!</h2>
+    <p id="learn-done-stats" style="margin-top:0.5rem"></p>
+    <div id="learn-done-memory" style="margin-top:1rem;font-family:var(--mono);font-size:0.65rem;color:var(--muted)"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="learnRestart()">Wszystkie pytania</button>
+      <button class="btn btn-wrong" id="btn-only-weak" onclick="learnRestartWeak()">Tylko nie umiem</button>
+      <button class="btn btn-ghost" onclick="lsReset()">Resetuj pamięć</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM MODE -->
+<div id="exam-mode">
+  <div id="exam-setup">
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-align:center;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Liczba pytań</p>
+    <div class="exam-num-select">
+      <button class="num-btn on" onclick="setExamNum(this,5)">5</button>
+      <button class="num-btn" onclick="setExamNum(this,10)">10</button>
+      <button class="num-btn" onclick="setExamNum(this,15)">15</button>
+      <button class="num-btn" onclick="setExamNum(this,20)">20</button>
+      <button class="num-btn" onclick="setExamNum(this,0)">Wszystkie</button>
+    </div>
+    <p style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);text-align:center;margin:1rem 0 0.75rem;text-transform:uppercase;letter-spacing:0.08em">Filtruj sekcje</p>
+    <div class="learn-filter" id="exam-filter"></div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="startExam()">Rozpocznij egzamin →</button>
+    </div>
+  </div>
+
+  <div id="exam-running" style="display:none">
+    <div class="exam-score-bar">
+      <div class="progress-bar" style="flex:1"><div class="progress-fill" id="exam-bar"></div></div>
+      <span class="score-pill score-good" id="exam-good">✓ 0</span>
+      <span class="score-pill score-bad" id="exam-bad">✗ 0</span>
+    </div>
+    <div class="exam-card">
+      <div class="exam-section-badge" id="exam-badge"></div>
+      <div class="exam-q" id="exam-q"></div>
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.25rem">Twoja odpowiedź:</div>
+      <textarea class="exam-textarea" id="exam-textarea" placeholder="Napisz wszystko co wiesz na ten temat..."></textarea>
+      <div class="learn-btns">
+        <button class="btn btn-primary" id="exam-submit-btn" onclick="examReveal()">Sprawdź odpowiedź</button>
+      </div>
+      <div class="exam-answer-reveal" id="exam-reveal">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent1);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em">✓ Wzorcowa odpowiedź</div>
+        <div id="exam-reveal-text"></div>
+      </div>
+      <div class="exam-verdict" id="exam-verdict">
+        <div class="verdict-label">Oceń się sam:</div>
+        <div class="verdict-btns">
+          <button class="btn btn-correct" onclick="examScore(true)">✓ Wiedziałem/am</button>
+          <button class="btn btn-wrong" onclick="examScore(false)">✗ Nie wiedziałem/am</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-summary" id="exam-summary" style="display:none">
+    <div style="font-size:3rem;margin-bottom:0.75rem" id="exam-emoji"></div>
+    <h2 id="exam-score-h"></h2>
+    <div class="score-label" id="exam-score-sub"></div>
+    <div class="missed-list" id="exam-missed"></div>
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="restartExam()">Nowy egzamin</button>
+      <button class="btn btn-ghost" onclick="setMode('browse')">Wróć do przeglądania</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var data = [
   { id:"s1", icon:"📐", title:"Uczenie z/bez nadzoru, wektory", qs:[
@@ -65,9 +275,9 @@ var data = [
     { q:"Czym jest uczenie bez nadzoru (unsupervised learning)?",
       a:"Dane nie maja etykiet — brak atrybutu decyzyjnego. Algorytm sam szuka ukrytej struktury. Przyklady: grupowanie (k-means), redukcja wymiarowosci (PCA)." },
     { q:"Roznice miedzy uczeniem z nadzorem a bez nadzoru",
-      a:"Z nadzorem: dane maja etykiety, cel to predykcja Y. Bez nadzoru: brak etykiet, cel to odkrycie struktury (grupy, reprezentacje). Uczenie bez nadzoru jest trudniejsze — brak obiektywnego kryterium jakosci (brak zlotego standardu)." },
+      a:"Z nadzorem: dane maja etykiety, cel to predykcja Y. Bez nadzoru: brak etykiet, cel to odkrycie struktury. Uczenie bez nadzoru trudniejsze — brak zlotego standardu jakosci." },
     { q:"Czym sie rozni regresja od klasyfikacji?",
-      a:"Regresja — wyjscie ciagle (np. cena, temperatura). Klasyfikacja — wyjscie dyskretne, przypisanie do klasy (spam/nie-spam). Przyklady regresji: cena nieruchomosci, ocena kredytowa, prognoza sprzedazy." },
+      a:"Regresja — wyjscie ciagle (cena, temperatura). Klasyfikacja — wyjscie dyskretne, przypisanie do klasy (spam/nie-spam). Przyklady regresji: cena nieruchomosci, ocena kredytowa, prognoza sprzedazy." },
     { q:"Jak dane sa reprezentowane w formie wektorow?",
       a:"Kazdy obiekt = wektor n-wymiarowy x = (x1, x2, ..., xn), gdzie kazda wspolrzedna to jeden atrybut. Zbior danych = macierz N x n." },
     { q:"Oblicz dlugosc wektora trojwymiarowego",
@@ -85,7 +295,7 @@ var data = [
     { q:"Regula Delta — wzor na aktualizacje wag",
       a:"Po kazdym blednie sklasyfikowanym przykladzie:<div class='formula'>W' = W + (d - y) * alpha * X</div>d = oczekiwane wyjscie, y = aktualne, alpha = stala uczenia (0,1), X = wektor wejsc." },
     { q:"Interpretacja geometryczna reguly Delta",
-      a:"Wzor W' = W + (d-y)*alpha*X przyciaga wektor W do pozytywnych przykladow X (gdy odpowiedz 0 zamiast 1 — za slaba aktywacja) i odpycha od negatywnych (gdy odpowiedz 1 zamiast 0 — zbyt mocna aktywacja)." },
+      a:"Wzor W' = W + (d-y)*alpha*X przyciaga wektor W do pozytywnych przykladow X (gdy odpowiedz 0 zamiast 1) i odpycha od negatywnych (gdy odpowiedz 1 zamiast 0)." },
     { q:"Czym rozni sie perceptron ciagly od dyskretnego?",
       a:"Dyskretny: y nalezy do {0,1} lub {-1,1} — funkcja progowa lub signum.<br>Ciagly: y nalezy do [0,1] lub [-1,1] — sigmoidalna lub liniowa. Ciagly jest rozniczkowalny — niezbedny dla backpropagation." },
     { q:"Zaleta i wada lokalnej reprezentacji warstwy perceptronow",
@@ -99,11 +309,11 @@ var data = [
     { q:"Precyzja i Pelnosc — definicje i wzory",
       a:"Tylko dla 2 klas (pozytywna / negatywna):<div class='formula'>Precyzja P = TP / (TP + FP)\nPelnosc  R = TP / (TP + FN)</div>P = ile z zaklasyfikowanych jako pozytywne jest naprawde pozytywnych.<br>R = ile z faktycznie pozytywnych zostalo wykrytych." },
     { q:"F-miara — co to jest i wzor",
-      a:"P i R sa sprzeczne — poprawa jednej zwykle pogarsza druga. F-miara laczy obie w jedna liczbe:<div class='formula'>F = 2 * P * R / (P + R)</div>Jest to srednia harmoniczna P i R. Jesli F jest wysoka, obie miary musza byc wysokie." },
+      a:"P i R sa sprzeczne — poprawa jednej zwykle pogarsza druga. F-miara laczy obie w jedna liczbe:<div class='formula'>F = 2 * P * R / (P + R)</div>Srednia harmoniczna P i R. Jesli F wysoka, obie miary musza byc wysokie." },
     { q:"Jakie sa wady precyzji jako jedynej miary ewaluacji?",
-      a:"Precyzja ignoruje False Negatives — przypadki gdy model nie wykryl pozytywnych przykladow. Przy niezbalansowanych danych (99% klasy A) wysoka precyzja moze maskowac zly model. Dlatego stosuje sie F-miare lub macierz pomylek." }
+      a:"Precyzja ignoruje False Negatives — przypadki gdy model nie wykryl pozytywnych przykladow. Przy niezbalansowanych danych wysoka precyzja moze maskowac zly model. Dlatego stosuje sie F-miare lub macierz pomylek." }
   ]},
-  { id:"s4", icon:"🧠", title:"Sieci neuronowe — warstwy, backprop, gradient, wieloklasyfikacja", qs:[
+  { id:"s4", icon:"🧠", title:"Sieci neuronowe — warstwy, backprop, gradient", qs:[
     { q:"Czym jest warstwa ukryta i dlaczego tak sie nazywa?",
       a:"Kazda warstwa miedzy wejsciowa a wyjsciowa. Ukryta — bo nie wiemy jaka powinna byc jej poprawna odpowiedz (etykiety mamy tylko dla wyjscia). Warstwy ukryte ucza sie reprezentacji posrednich." },
     { q:"Metoda wstecznej propagacji bledu — czym jest?",
@@ -113,9 +323,9 @@ var data = [
     { q:"Metoda gradientu — czym jest i gdzie sie stosuje?",
       a:"Minimalizuje funkcje bledu idac w kierunku przeciwnym do gradientu:<div class='formula'>W_new = W_old - eta * grad_E(W)</div>Stosowana w uczeniu sieci neuronowych, regresji logistycznej, SVM." },
     { q:"Jak dziala wieloklasyfikacja przy pomocy jednowarstwowej sieci?",
-      a:"Kazdy perceptron klasyfikuje do 2 klas. Dla wiecej klas: uzywamy warstwy perceptronow (jeden na klase). Kazde wejscie podlaczone do kazdego perceptrona. Decyzja = klasa neuronu ktory sie maksymalnie aktywuje. Mozna uzyc ciaglych neuronow zamiast dyskretnych — bardziej odporne na jednoczesna aktywacje wielu neuronow." },
+      a:"Kazdy perceptron klasyfikuje do 2 klas. Dla wiecej klas: uzywamy warstwy perceptronow (jeden na klase). Decyzja = klasa neuronu ktory sie maksymalnie aktywuje. Mozna uzyc ciaglych neuronow — bardziej odporne na jednoczesna aktywacje wielu neuronow." },
     { q:"Co wnosi wielowarstwowsc do sieci neuronowej?",
-      a:"Jedna warstwa — tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest UNIWERSALNYM APROKSYMATOREM — moze aproksymowac dowolna funkcje." },
+      a:"Jedna warstwa — tylko liniowe granice decyzji (XOR niemozliwy). Kazda warstwa ukryta wykonuje transformacje przestrzeni. Wielowarstwowa siec z ciagla funkcja aktywacji jest UNIWERSALNYM APROKSYMATOREM." },
     { q:"Ograniczenia jednowarstwowej sieci neuronowej",
       a:"Moze tworzyc tylko liniowe granice decyzji — jak pojedynczy perceptron. Nie poradzi sobie z XOR ani danymi w ksztalcie pierscienia. Std potrzeba warstw ukrytych." }
   ]},
@@ -123,7 +333,7 @@ var data = [
     { q:"Wzor Bayesa",
       a:"<div class='formula'>P(Y=y | X=x) = P(X=x | Y=y) * P(Y=y) / P(X=x)</div>Prawdopodobienstwo klasy y pod warunkiem obserwacji x." },
     { q:"Co czyni naiwny klasyfikator Bayesa naiwnym?",
-      a:"Zalozenie ze wszystkie atrybuty sa parami NIEZALEZNE:<div class='formula'>P(X=(x1..xn)|Y=y) = P(X1=x1|Y=y) * ... * P(Xn=xn|Y=y)</div>Szacujemy kazdy atrybut osobno — znacznie prostsze obliczeniowo. W praktyce zakladzie rzadko zachodzi." },
+      a:"Zalozenie ze wszystkie atrybuty sa parami NIEZALEZNE:<div class='formula'>P(X=(x1..xn)|Y=y) = P(X1=x1|Y=y) * ... * P(Xn=xn|Y=y)</div>Szacujemy kazdy atrybut osobno. W praktyce zalozenie rzadko zachodzi." },
     { q:"Czym jest przetrenowanie (overfitting)?",
       a:"Model zapamietal zbior treningowy zamiast ogolnych wzorcow. Niski blad treningowy, wysoki testowy. Rozwiazania: pruning, walidacja krzyzowa, regularyzacja, wiecej danych." },
     { q:"Czym jest walidacja krzyzowa?",
@@ -137,13 +347,13 @@ var data = [
     { q:"Do czego sluzy entropia w drzewach decyzyjnych?",
       a:"Mierzy czystosc podzialu danych. Wybieramy atrybut ktory minimalizuje entropie (maksymalizuje zysk informacji). Entropia=0 gdy wszystkie przyklady naleza do jednej klasy." },
     { q:"Czym jest pruning?",
-      a:"Upraszcza drzewo przez usuwanie galezi ktore nie poprawiaja jakosci. Zapobiega przetrenowaniu. C4.5 stosuje pruning automatycznie. Cost complexity: minimalizuje RSS + alfa*|T|." },
+      a:"Upraszcza drzewo przez usuwanie galezi ktore nie poprawiaja jakosci. Zapobiega przetrenowaniu. C4.5 stosuje pruning automatycznie." },
     { q:"Czym sa reguly decyzyjne?",
-      a:"Alternatywna forma reprezentacji wiedzy: reguly postaci IF [warunki] THEN [klasa]. Czytelne dla czlowieka, jak drzewa. Algorytmy indukcji regul ucza sie ich ze zbioru treningowego. Przyklad: IF pogoda=slonecznie AND wilgotnosc=normalna THEN graj=tak." },
+      a:"Forma reprezentacji wiedzy: IF [warunki] THEN [klasa]. Czytelne dla czlowieka jak drzewa. Przyklad: IF pogoda=slonecznie AND wilgotnosc=normalna THEN graj=tak." },
     { q:"Co to jest model black box i kiedy jest problemem?",
-      a:"Model black box (np. wielowarstwowa siec neuronowa) jest skuteczny, ale wiedza jest reprezentowana nieczytelnie (wagi polaczen). Nie mozna wytlumaczyc decyzji. Problem gdy wymagana jest interpretowalnosc (medycyna, prawo, finanse). Alternatywy: drzewa i reguly decyzyjne." },
+      a:"Model black box (np. wielowarstwowa siec) jest skuteczny, ale wiedza nieczytelna (wagi polaczen). Problem gdy wymagana interpretowalnosc (medycyna, prawo, finanse). Alternatywy: drzewa i reguly decyzyjne." },
     { q:"Zlozonosc modelu — bias-variance tradeoff",
-      a:"Za prosty model: underfitting — wysoki blad na treningowych i testowych (high bias, low variance).<br>Za zlozony model: overfitting — niski blad treningowy, wysoki testowy (low bias, high variance).<br>Optimum: srodkowa zlozonosc modelu minimalizujaca blad testowy." },
+      a:"Za prosty: underfitting — wysoki blad treningowy i testowy (high bias).<br>Za zlozony: overfitting — niski blad treningowy, wysoki testowy (high variance).<br>Optimum: srodkowa zlozonosc minimalizujaca blad testowy." },
     { q:"Jedna zaleta i jedna wada drzew decyzyjnych",
       a:"Zaleta: wysoka interpretowalnosc — wiedza zrozumiala dla czlowieka.<br>Wada: podatnosc na przetrenowanie i niestabilnosc — male zmiany danych moga zmienic cala strukture drzewa." },
     { q:"Przykladowe warunki zakonczenia budowy drzewa",
@@ -153,23 +363,23 @@ var data = [
     { q:"Cel algorytmu grupowania (clustering)",
       a:"Podzielic N obiektow na k grup: obiekty wewnatrz grupy mozliwie podobne, z roznych grup mozliwie rozne. Uczenie bez nadzoru — brak etykiet." },
     { q:"Jak dziala algorytm k-means?",
-      a:"1. Losowo przypisz kazdy punkt do jednej z k grup.<br>2. Oblicz centroid kazdej grupy (srednia wektorow).<br>3. Przypisz kazdy punkt do grupy z najblizszym centroidem.<br>4. Powtarzaj 2-3 az do braku zmian. Minimalizuje sume kwadratow odleglosci od centroidow." },
+      a:"1. Losowo przypisz kazdy punkt do jednej z k grup.<br>2. Oblicz centroid kazdej grupy (srednia wektorow).<br>3. Przypisz kazdy punkt do grupy z najblizszym centroidem.<br>4. Powtarzaj 2-3 az do braku zmian." },
     { q:"Podaj dwie metody obliczania odleglosci miedzy klastrami",
       a:"<ul><li>Single linkage (min): minimalna odleglosc miedzy para punktow z roznych klastrow</li><li>Complete linkage (max): maksymalna odleglosc miedzy para punktow</li><li>Average linkage: srednia odleglosc miedzy wszystkimi parami</li><li>Centroid linkage: odleglosc miedzy centroidami</li></ul>" },
     { q:"Ograniczenie k-means — problem z ksztaltem C",
-      a:"K-means dzieli dane liniowo — nie potrafi rozdzielic ksztaltow niekonweksowych (pierscien, litera C). Klastry oddzielone hiperplaszczyzna niezaleznie od faktycznego ksztaltu. Fundamentalne ograniczenie k-means." },
+      a:"K-means dzieli dane liniowo — nie potrafi rozdzielic ksztaltow niekonweksowych (pierscien, litera C). Klastry oddzielone hiperplaszczyzna niezaleznie od faktycznego ksztaltu." },
     { q:"Czym jest grupowanie hierarchiczne?",
-      a:"Algorytm aglomeracyjny (bottom-up):<br>1. Start: kazdy punkt = osobny klaster (N klastrow)<br>2. Polacz dwa najblizsze klastry<br>3. Powtarzaj az zostanie 1 klaster<br>Wynik: dendrogram — drzewo hierarchii polaczen. Liczbe klastrow wybieramy po zbudowaniu, tnac dendrogram na wybranej wysokosci." },
+      a:"Algorytm aglomeracyjny (bottom-up):<br>1. Start: kazdy punkt = osobny klaster<br>2. Polacz dwa najblizsze klastry<br>3. Powtarzaj az zostanie 1 klaster<br>Wynik: dendrogram — drzewo hierarchii polaczen." },
     { q:"Co to jest dendrogram?",
-      a:"Drzewo hierarchii polaczen klastrow. Os Y = odleglosc przy ktorej klastry zostaly polaczone. Punkty laczace sie nisko sa podobne. Aby uzyskac k klastrow — tniemy dendrogram na wybranej wysokosci." }
+      a:"Drzewo hierarchii polaczen klastrow. Os Y = odleglosc przy laczeniu. Aby uzyskac k klastrow — tniemy dendrogram na wybranej wysokosci." }
   ]},
   { id:"s8", icon:"🌿", title:"PCA i uczenie bez nadzoru", qs:[
     { q:"Czym jest PCA (Principal Component Analysis)?",
-      a:"Metoda redukcji wymiarowosci (uczenie bez nadzoru). Szuka kierunkow o maksymalnej wariancji w danych (glowne skladowe), parami niezaleznych. Rzutuje dane na te kierunki zachowujac jak najwiecej informacji.<br>Zastosowania: wizualizacja danych wielowymiarowych, preprocessing przed uczeniem nadzorowanym." },
+      a:"Metoda redukcji wymiarowosci. Szuka kierunkow o maksymalnej wariancji (glowne skladowe), parami niezaleznych. Rzutuje dane na te kierunki zachowujac jak najwiecej informacji. Zastosowania: wizualizacja, preprocessing." },
     { q:"Jaka jest roznica miedzy PCA a clusteringiem?",
-      a:"PCA: szuka niskowymiarowej reprezentacji (nowe wspolrzedne — kombinacje zmiennych wyjasniajace wariancje).<br>Clustering: szuka jednorodnych podgrup (przypisanie punktow do grup).<br>Oba to uczenie bez nadzoru, ale rozwiazuja inne zadania." },
+      a:"PCA: szuka niskowymiarowej reprezentacji (nowe wspolrzedne).<br>Clustering: szuka jednorodnych podgrup (przypisanie do grup).<br>Oba to uczenie bez nadzoru, ale rozwiazuja inne zadania." },
     { q:"Dlaczego uczenie bez nadzoru jest trudniejsze niz z nadzorem?",
-      a:"Brak zlotego standardu — nie ma zmiennej odpowiedzi Y ani jednego obiektywnego kryterium (jak test set accuracy). Wiele mozliwych interpretacji tej samej struktury. Wyniki sa bardziej subiektywne." }
+      a:"Brak zlotego standardu — nie ma zmiennej Y ani jednego obiektywnego kryterium. Wiele mozliwych interpretacji tej samej struktury. Wyniki sa bardziej subiektywne." }
   ]},
   { id:"s9", icon:"🎒", title:"Optymalizacja — brute-force, zachlanne, plecak, TSP, HC", qs:[
     { q:"Co to jest metoda silowa (brute-force)?",
@@ -179,27 +389,27 @@ var data = [
     { q:"Kontrprzyklad dla zachlannego w problemie plecakowym",
       a:"Pojemnosc=10. A(waga=6, wartosc=6), B(waga=5, wartosc=5), C(waga=5, wartosc=5).<br>Zachlanne: A => wartosc=6.<br>Optymalne: B+C => wartosc=10." },
     { q:"Podejscie zachlanne do komiwojazera (TSP)",
-      a:"Nearest Neighbor: zacznij od dowolnego miasta, idz do najblizszego nieodwiedzonego. Szybkie, ale nie gwarantuje optymalnosci — trasa moze byc znaczaco dluzsza od optymalnej." },
+      a:"Nearest Neighbor: zacznij od dowolnego miasta, idz do najblizszego nieodwiedzonego. Szybkie, ale nie gwarantuje optymalnosci." },
     { q:"Zalety i wady przeszukiwania lokalnego",
       a:"Zalety: uniwersalne, akceptowalna zlozonosc czasowa.<br>Wady: brak gwarancji optymalnosci globalnej — optimum lokalne. Nie wiemy jak daleko od globalnego." },
     { q:"Algorytm wspinaczkowy HC — pseudokod",
       a:"<div class='formula'>current = losowe rozwiazanie dopuszczalne\nwhile (istnieje lepszy sasiad):\n  current = najlepszy sasiad\nreturn current</div>Zawsze idzie do gory. Zatrzymuje sie w pierwszym optimum lokalnym." },
     { q:"Ulepszenia algorytmu wspinaczkowego (HC)",
-      a:"<ul><li>Random restart: uruchamiaj HC wielokrotnie z roznych startow, wybierz najlepsze</li><li>Beam search: pamietaj k biezacych rozwiazania i rozpatruj k najlepszych ruchow jednoczesnie</li><li>Simulated Annealing: pozwol na gorsze ruchy z malejacym prawdopodobienstwem</li></ul>" },
+      a:"<ul><li>Random restart: uruchamiaj HC wielokrotnie z roznych startow, wybierz najlepsze</li><li>Beam search: pamietaj k biezacych rozwiazania jednoczesnie</li><li>Simulated Annealing: pozwol na gorsze ruchy z malejacym prawdopodobienstwem</li></ul>" },
     { q:"4 pozadane wlasnosci relacji sasiedztwa",
-      a:"<ul><li>Spojnosc: z kazdego rozwiazania mozna dotrzec do kazdego innego</li><li>Minimalna roznica sasiadow: roznia sie jak najmniej (koszt bliski)</li><li>Mala liczba sasiadow: efektywny wybor najlepszego w kazdej iteracji</li><li>Mala srednica: mala maks. liczba iteracji</li></ul>" },
+      a:"<ul><li>Spojnosc: z kazdego rozwiazania mozna dotrzec do kazdego innego</li><li>Minimalna roznica sasiadow: roznia sie jak najmniej</li><li>Mala liczba sasiadow: efektywny wybor najlepszego</li><li>Mala srednica: mala maks. liczba iteracji</li></ul>" },
     { q:"Jak zaproponowac relacje sasiedztwa dla problemu plecakowego?",
-      a:"Dobra relacja: sasiad = rozwiazanie rozniace sie dodaniem lub usunieciem dokladnie JEDNEGO przedmiotu (o ile nowe rozwiazanie jest dopuszczalne). Spelnia: mala roznica, mala liczba sasiadow (n sasiadow), spójnosc." },
+      a:"Sasiad = rozwiazanie rozniace sie dodaniem lub usunieciem dokladnie JEDNEGO przedmiotu (o ile dopuszczalne). Spelnia: mala roznica, mala liczba sasiadow (n), spojnosc." },
     { q:"Specyfikacja problemu plecakowego",
       a:"Wejscie: n przedmiotow o wagach w_i i wartosciach c_i, pojemnosc plecaka W.<br>Wyjscie: podzbioru o maks. lacznej wartosci przy lacznej wadze &lt;= W." },
     { q:"Problem minimalnego drzewa rozpinajacego (MST)",
-      a:"Wejscie: nieskierowany spojny graf G=(V,E) z wagami na krawedziach.<br>Wyjscie: spojny podgraf zawierajacy wszystkie wierzcholki o minimalnej sumie wag (musi byc drzewem). Algorytmy: Kruskal, Prim — oba zachlanne i optymalne." }
+      a:"Wejscie: nieskierowany spojny graf G=(V,E) z wagami.<br>Wyjscie: spojny podgraf o minimalnej sumie wag krawedzi (musi byc drzewem). Algorytmy: Kruskal, Prim — oba zachlanne i optymalne." }
   ]},
   { id:"s10", icon:"🔥", title:"Symulowane wychladzanie (SA)", qs:[
     { q:"Czym jest symulowane wychladzanie (Simulated Annealing)?",
-      a:"Ulepszenie HC — pozwala na chwilowe przejscie do GORSZEGO rozwiazania by uciec z optimum lokalnego.<div class='formula'>current = losowe rozwiazanie\nwhile (stopCondition):\n  candidate = losowy sasiad(current)\n  if f(candidate) lepszy niz f(current):\n    current = candidate\n  else:\n    current = candidate z prawdopodob. P(temp)\n  obniz temperature\nreturn best_seen_solution</div>Prawdopodobienstwo przyjecia gorszego ruchu maleje z temperatura. Analogia: powolne wychladzanie metalu = lepszy krysztal." },
+      a:"Ulepszenie HC — pozwala na chwilowe przejscie do GORSZEGO rozwiazania by uciec z optimum lokalnego.<div class='formula'>current = losowe rozwiazanie\nwhile (stopCondition):\n  candidate = losowy sasiad(current)\n  if f(candidate) lepszy: current = candidate\n  else: current = candidate z prawdopodob. P(temp)\n  obniz temperature\nreturn best_seen_solution</div>Prawdopodobienstwo przyjecia gorszego ruchu maleje z temperatura. Analogia: wychladzanie metalu = lepszy krysztal." },
     { q:"Dlaczego SA jest lepsze od HC?",
-      a:"HC zawsze idzie do gory — zatrzymuje sie w pierwszym optimum lokalnym. SA moze przyjac gorszy ruch z pewnym prawdopodobienstwem, dzieki czemu moze wydostac sie z pulapki lokalnej. SA tez nie gwarantuje optimum globalnego, ale daje wieksze szanse." }
+      a:"HC zawsze idzie do gory — zatrzymuje sie w pierwszym optimum lokalnym. SA moze przyjac gorszy ruch, dzieki czemu moze wydostac sie z pulapki lokalnej. SA tez nie gwarantuje optimum globalnego, ale daje wieksze szanse." }
   ]},
   { id:"s11", icon:"🌲", title:"Ensemble — Bagging, Random Forest, Boosting", qs:[
     { q:"Czym jest bagging?",
@@ -213,25 +423,27 @@ var data = [
   ]},
   { id:"s12", icon:"🧮", title:"Matroidy, Huffman, kiedy zachlanne jest optymalne", qs:[
     { q:"Kiedy algorytm zachlanny gwarantuje optimum globalne?",
-      a:"Gdy problem ma strukture matroidu — twierdzenie Rado-Edmondsa. Jezeli struktura problemu jest matroidem, to prosty algorytm zachlanny (sortuj malejaco, dodawaj element jesli rozwiazanie pozostaje dopuszczalne) zawsze znajdzie optimum." },
+      a:"Gdy problem ma strukture matroidu — twierdzenie Rado-Edmondsa. Prosty algorytm zachlanny (sortuj malejaco, dodawaj jesli dopuszczalne) zawsze znajdzie optimum." },
     { q:"Co to jest matroid?",
-      a:"Para M=(E, I) gdzie E to skoncony zbior, I to rodzina podzbiorow E spelniajaca:<br>1. Monotonicznosc: jesli A nalezy do I i B jest podzbiorem A, to B nalezy do I.<br>2. Wlasnosc wymiany: dla A,B z I gdzie |B|=|A|+1, istnieje e z B\\A taki ze A+{e} nalezy do I.<br>Uogolnienie pojecia niezaleznosci liniowej." },
+      a:"Para M=(E, I) gdzie E to skoncony zbior, I to rodzina podzbiorow E spelniajaca:<br>1. Monotonicznosc: jesli A nalezy do I i B jest podzbiorem A, to B nalezy do I.<br>2. Wlasnosc wymiany: dla A,B z I gdzie |B|=|A|+1, istnieje e z B\\A taki ze A+{e} nalezy do I." },
     { q:"Twierdzenie Rado-Edmondsa — idea",
-      a:"Jezeli M=(E,I) jest matroidem i koszt rozwiazania to suma wartosci elementow, to algorytm zachlanny (sortuj malejaco, dodawaj jesli dopuszczalne) zawsze znajdzie maksymalny zbior niezalezny — czyli rozwiazanie optymalne. Przyklad: MST jest matroidem => algorytm Kruskala jest optymalny." },
+      a:"Jezeli M=(E,I) jest matroidem i koszt to suma wartosci elementow, to algorytm zachlanny (sortuj malejaco, dodawaj jesli dopuszczalne) zawsze znajdzie optimum. Przyklad: MST jest matroidem => Kruskal jest optymalny." },
     { q:"Kodowanie Huffmana — czym jest i dlaczego jest optymalne?",
-      a:"Algorytm kompresji bezstratnej: przypisuje krotsze kody binarnym znakom czestszym, dluzsze rzadszym. Oczekiwana dlugosc kodu rowna entropii rozkladu czestosci — nie mozna lepiej skompresowac. Algorytm zachlanny Huffmana jest optymalny (udowodniono), mimo ze problem nie spelnia zakladzen Rado-Edmondsa bezposrednio." }
+      a:"Algorytm kompresji bezstratnej: przypisuje krotsze kody binarnym znakom czestszym, dluzsze rzadszym. Oczekiwana dlugosc kodu rowna entropii — nie mozna lepiej skompresowac. Algorytm zachlanny Huffmana jest optymalny (udowodniono)." }
   ]}
 ];
 
+/* ===================== BROWSE ===================== */
 function build() {
-  var container = document.getElementById('main');
-  data.forEach(function(section) {
+  var c = document.getElementById('main');
+  data.forEach(function(sec) {
     var div = document.createElement('div');
-    div.className = 'section ' + section.id;
-    var qsHtml = section.qs.map(function(item, i) {
-      return '<div class="qa">' +
+    div.className = 'section ' + sec.id;
+    div.dataset.secId = sec.id;
+    var qsHtml = sec.qs.map(function(item, i) {
+      return '<div class="qa" data-q="' + encodeURIComponent(item.q) + '">' +
         '<div class="question" onclick="toggleQA(this.parentElement)">' +
-        '<span>' + item.q + '</span>' +
+        '<span class="q-text">' + item.q + '</span>' +
         '<span class="q-marker">Q' + (i+1) + '</span>' +
         '</div>' +
         '<div class="answer">' + item.a + '</div>' +
@@ -239,13 +451,13 @@ function build() {
     }).join('');
     div.innerHTML =
       '<div class="section-header" onclick="toggleSection(this.parentElement)">' +
-        '<div class="section-icon">' + section.icon + '</div>' +
-        '<div class="section-title">' + section.title + '</div>' +
-        '<span class="section-count">' + section.qs.length + ' pyt.</span>' +
+        '<div class="section-icon">' + sec.icon + '</div>' +
+        '<div class="section-title">' + sec.title + '</div>' +
+        '<span class="section-count">' + sec.qs.length + ' pyt.</span>' +
         '<span class="chevron">&#9660;</span>' +
       '</div>' +
       '<div class="questions">' + qsHtml + '</div>';
-    container.appendChild(div);
+    c.appendChild(div);
   });
   document.querySelector('.section').classList.add('open');
 }
@@ -262,7 +474,358 @@ function toggleAll() {
   document.querySelector('.expand-all').textContent = allOpen ? '▲ Zwiń wszystkie' : '▼ Rozwiń wszystkie';
 }
 
+/* ===================== SEARCH ===================== */
+function doSearch(val) {
+  var term = val.trim().toLowerCase();
+  var count = 0;
+  document.querySelectorAll('.section').forEach(function(sec) {
+    var secVisible = false;
+    sec.querySelectorAll('.qa').forEach(function(qa) {
+      var qText = qa.querySelector('.q-text');
+      var ansEl = qa.querySelector('.answer');
+      var qRaw = decodeURIComponent(qa.dataset.q).toLowerCase();
+      var aRaw = ansEl.textContent.toLowerCase();
+      if (!term || qRaw.includes(term) || aRaw.includes(term)) {
+        qa.classList.remove('hidden');
+        // highlight
+        if (term) {
+          qText.innerHTML = decodeURIComponent(qa.dataset.q).replace(
+            new RegExp('(' + escRe(val.trim()) + ')', 'gi'),
+            '<span class="highlight">$1</span>');
+        } else {
+          qText.innerHTML = decodeURIComponent(qa.dataset.q);
+        }
+        secVisible = true;
+        count++;
+      } else {
+        qa.classList.add('hidden');
+        qText.innerHTML = decodeURIComponent(qa.dataset.q);
+      }
+    });
+    if (secVisible) {
+      sec.classList.remove('section-hidden');
+      if (term) sec.classList.add('open');
+    } else {
+      sec.classList.add('section-hidden');
+    }
+  });
+  document.getElementById('search-count').textContent = term ? ('Znaleziono: ' + count + ' pytań') : '';
+}
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+/* ===================== MODE ===================== */
+var currentMode = 'browse';
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.mode-tab').forEach(function(t,i){
+    t.classList.toggle('active', ['browse','learn','exam'][i] === m);
+  });
+  document.getElementById('browse-mode').style.display = m==='browse' ? 'block' : 'none';
+  document.getElementById('learn-mode').style.display  = m==='learn'  ? 'block' : 'none';
+  document.getElementById('exam-mode').style.display   = m==='exam'   ? 'block' : 'none';
+  document.getElementById('search-wrap').style.display = m==='browse' ? 'block' : 'none';
+  document.getElementById('search-count').style.display = m==='browse' ? 'block' : 'none';
+  if (m==='learn') initLearn();
+  if (m==='exam')  initExamSetup();
+}
+
+/* ===================== LOCALSTORAGE ===================== */
+var LS_KEY = 'nai_learn_v1';
+
+function lsLoad() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function lsSave(mem) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(mem)); } catch(e) {}
+}
+
+function lsMarkCorrect(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) mem[key] = { ok:0, fail:0 };
+  mem[key].ok++;
+  lsSave(mem);
+}
+
+function lsMarkWrong(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) mem[key] = { ok:0, fail:0 };
+  mem[key].fail++;
+  lsSave(mem);
+}
+
+function lsKnows(q) {
+  var mem = lsLoad();
+  var key = q.substring(0, 60);
+  if (!mem[key]) return null;
+  // "umie" jesli ostatnie 3 sesje poprawne i fail==0 ostatnio
+  return mem[key].ok >= 2 && mem[key].fail === 0;
+}
+
+function lsReset() {
+  localStorage.removeItem(LS_KEY);
+  learnRestart();
+}
+
+function lsStatsText() {
+  var mem = lsLoad();
+  var total = 0, knows = 0, weak = 0;
+  data.forEach(function(sec) {
+    sec.qs.forEach(function(qa) {
+      total++;
+      var key = qa.q.substring(0,60);
+      if (mem[key]) {
+        if (mem[key].ok >= 2 && mem[key].fail === 0) knows++;
+        else if (mem[key].fail > 0) weak++;
+      }
+    });
+  });
+  return { total:total, knows:knows, weak:weak };
+}
+
+/* ===================== LEARN MODE ===================== */
+var learnQueue = [], learnIdx = 0, learnCorrect = 0, learnTotal = 0;
+var learnSections = {};
+var learnWeakOnly = false;
+
+function initLearn() {
+  var f = document.getElementById('learn-filter');
+  if (f.children.length === 0) {
+    data.forEach(function(sec) {
+      learnSections[sec.id] = true;
+      var btn = document.createElement('button');
+      btn.className = 'filter-btn on';
+      btn.textContent = sec.icon + ' ' + sec.title.split('—')[0].trim();
+      btn.onclick = function() {
+        learnSections[sec.id] = !learnSections[sec.id];
+        btn.classList.toggle('on', learnSections[sec.id]);
+        learnRestart();
+      };
+      f.appendChild(btn);
+    });
+  }
+  learnWeakOnly = false;
+  learnRestart();
+}
+
+function learnRestart() {
+  learnWeakOnly = false;
+  learnBuild();
+}
+
+function learnRestartWeak() {
+  learnWeakOnly = true;
+  learnBuild();
+}
+
+function learnBuild() {
+  var mem = lsLoad();
+  learnQueue = [];
+  learnCorrect = 0;
+  data.forEach(function(sec) {
+    if (!learnSections[sec.id]) return;
+    sec.qs.forEach(function(qa) {
+      if (learnWeakOnly) {
+        var key = qa.q.substring(0,60);
+        var r = mem[key];
+        // tylko te z fail>0 lub jeszcze niewidziane
+        if (r && r.ok >= 2 && r.fail === 0) return; // umie — pomiń
+      }
+      learnQueue.push({ q: qa.q, a: qa.a, sec: sec.title });
+    });
+  });
+  // shuffle
+  for (var i = learnQueue.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = learnQueue[i]; learnQueue[i] = learnQueue[j]; learnQueue[j] = tmp;
+  }
+  learnTotal = learnQueue.length;
+  learnIdx = 0;
+  document.getElementById('learn-done').style.display = 'none';
+  document.getElementById('learn-card').style.display = 'block';
+  learnShow();
+}
+
+function learnShow() {
+  if (learnIdx >= learnQueue.length) { learnFinish(); return; }
+  var item = learnQueue[learnIdx];
+  var mem = lsLoad();
+  var key = item.q.substring(0,60);
+  var r = mem[key];
+
+  document.getElementById('learn-q').textContent = item.q;
+  document.getElementById('learn-a').innerHTML = item.a;
+  document.getElementById('learn-a').style.display = 'none';
+  // badge: sekcja + historia
+  var hist = '';
+  if (r) {
+    hist = '  •  ✓ ' + r.ok + '  ✗ ' + r.fail;
+  }
+  document.getElementById('learn-badge').textContent = item.sec + hist;
+  document.getElementById('learn-btns').style.display = 'flex';
+  document.getElementById('learn-after-btns').style.display = 'none';
+  var pct = learnTotal > 0 ? Math.round((learnIdx/learnTotal)*100) : 0;
+  document.getElementById('learn-progress').textContent =
+    (learnIdx+1) + ' / ' + learnTotal + '  •  tej sesji: ✓ ' + learnCorrect;
+  document.getElementById('learn-bar').style.width = pct + '%';
+}
+
+function learnReveal() {
+  document.getElementById('learn-a').style.display = 'block';
+  document.getElementById('learn-btns').style.display = 'none';
+  document.getElementById('learn-after-btns').style.display = 'flex';
+}
+
+function learnNext(correct) {
+  var item = learnQueue[learnIdx];
+  if (correct) {
+    learnCorrect++;
+    lsMarkCorrect(item.q);
+  } else {
+    lsMarkWrong(item.q);
+  }
+  learnIdx++;
+  learnShow();
+}
+
+function learnSkip() {
+  learnIdx++;
+  learnShow();
+}
+
+function learnFinish() {
+  document.getElementById('learn-card').style.display = 'none';
+  document.getElementById('learn-done').style.display = 'block';
+  var pct = learnTotal > 0 ? Math.round((learnCorrect/learnTotal)*100) : 0;
+  document.getElementById('learn-done-emoji').textContent = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📖';
+  document.getElementById('learn-done-stats').textContent =
+    'Sesja: ' + learnCorrect + ' / ' + learnTotal + ' (' + pct + '%)';
+  // memory stats
+  var st = lsStatsText();
+  var weakCount = st.total - st.knows;
+  document.getElementById('learn-done-memory').textContent =
+    'Pamięć łączna: ✓ umiesz ' + st.knows + ' / ' + st.total + ' pytań  •  do powtórzenia: ' + weakCount;
+  var weakBtn = document.getElementById('btn-only-weak');
+  if (weakCount === 0) weakBtn.style.display = 'none';
+  else weakBtn.style.display = '';
+}
+
+/* ===================== EXAM MODE ===================== */
+var examNum = 5;
+var examQueue = [], examIdx = 0, examGood = 0, examBad = 0;
+var examMissed = [];
+var examSections = {};
+
+function setExamNum(btn, n) {
+  examNum = n;
+  document.querySelectorAll('.num-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+function initExamSetup() {
+  var f = document.getElementById('exam-filter');
+  if (f.children.length === 0) {
+    data.forEach(function(sec) {
+      examSections[sec.id] = true;
+      var btn = document.createElement('button');
+      btn.className = 'filter-btn on';
+      btn.textContent = sec.icon + ' ' + sec.title.split('—')[0].trim();
+      btn.onclick = function() {
+        examSections[sec.id] = !examSections[sec.id];
+        btn.classList.toggle('on', examSections[sec.id]);
+      };
+      f.appendChild(btn);
+    });
+  }
+  document.getElementById('exam-setup').style.display = '';
+  document.getElementById('exam-running').style.display = 'none';
+  document.getElementById('exam-summary').style.display = 'none';
+}
+
+function startExam() {
+  var pool = [];
+  data.forEach(function(sec) {
+    if (examSections[sec.id]) {
+      sec.qs.forEach(function(qa) { pool.push({ q:qa.q, a:qa.a, sec:sec.title }); });
+    }
+  });
+  // shuffle pool
+  for (var i = pool.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+  }
+  examQueue = examNum > 0 ? pool.slice(0, examNum) : pool;
+  examIdx = 0; examGood = 0; examBad = 0; examMissed = [];
+  document.getElementById('exam-setup').style.display = 'none';
+  document.getElementById('exam-running').style.display = '';
+  document.getElementById('exam-summary').style.display = 'none';
+  examShow();
+}
+
+function examShow() {
+  if (examIdx >= examQueue.length) { examFinish(); return; }
+  var item = examQueue[examIdx];
+  document.getElementById('exam-q').textContent = item.q;
+  document.getElementById('exam-badge').textContent = item.sec + '  •  ' + (examIdx+1) + '/' + examQueue.length;
+  document.getElementById('exam-textarea').value = '';
+  document.getElementById('exam-reveal').style.display = 'none';
+  document.getElementById('exam-verdict').style.display = 'none';
+  document.getElementById('exam-reveal-text').innerHTML = '';
+  document.getElementById('exam-submit-btn').style.display = '';
+  // score bar
+  var total = examQueue.length;
+  document.getElementById('exam-bar').style.width = Math.round((examIdx/total)*100)+'%';
+  document.getElementById('exam-good').textContent = '✓ ' + examGood;
+  document.getElementById('exam-bad').textContent = '✗ ' + examBad;
+}
+
+function examReveal() {
+  var item = examQueue[examIdx];
+  document.getElementById('exam-reveal-text').innerHTML = item.a;
+  document.getElementById('exam-reveal').style.display = 'block';
+  document.getElementById('exam-verdict').style.display = 'flex';
+  document.getElementById('exam-submit-btn').style.display = 'none';
+}
+
+function examScore(correct) {
+  if (correct) { examGood++; }
+  else { examBad++; examMissed.push(examQueue[examIdx]); }
+  examIdx++;
+  examShow();
+}
+
+function examFinish() {
+  document.getElementById('exam-running').style.display = 'none';
+  document.getElementById('exam-summary').style.display = 'block';
+  var total = examQueue.length;
+  var pct = total > 0 ? Math.round((examGood/total)*100) : 0;
+  var emoji = pct >= 80 ? '🎉' : pct >= 50 ? '💪' : '📖';
+  document.getElementById('exam-emoji').textContent = emoji;
+  document.getElementById('exam-score-h').textContent = examGood + ' / ' + total;
+  document.getElementById('exam-score-sub').textContent = pct + '% poprawnych odpowiedzi';
+  var missedEl = document.getElementById('exam-missed');
+  if (examMissed.length === 0) {
+    missedEl.innerHTML = '<p style="color:var(--accent1);font-family:var(--mono);font-size:0.75rem;text-align:center;margin-top:1rem">Idealnie! Wszystkie odpowiedzi poprawne.</p>';
+  } else {
+    missedEl.innerHTML = '<p style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem">Do powtórzenia:</p>' +
+      examMissed.map(function(m) {
+        return '<div class="missed-item"><div class="missed-q">' + m.q + '</div></div>';
+      }).join('');
+  }
+}
+
+function restartExam() {
+  document.getElementById('exam-setup').style.display = '';
+  document.getElementById('exam-running').style.display = 'none';
+  document.getElementById('exam-summary').style.display = 'none';
+}
+
+/* ===================== INIT ===================== */
 build();
+setMode('browse');
 </script>
 </body>
 </html>
