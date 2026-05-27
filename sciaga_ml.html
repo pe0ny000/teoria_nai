@@ -855,59 +855,106 @@ function examReveal() {
 }
 
 async function askAI(question, userAnswer, modelAnswer) {
-  var prompt = 'Jesteś asystentem sprawdzającym odpowiedzi studenta z zakresu uczenia maszynowego i AI.\n\n' +
-    'Pytanie: ' + question + '\n\n' +
-    'Wzorcowa odpowiedź: ' + modelAnswer + '\n\n' +
-    'Odpowiedź studenta: ' + userAnswer + '\n\n' +
-    'Oceń odpowiedź studenta. Odpowiedz TYLKO w tym formacie JSON (bez żadnego innego tekstu):\n' +
-    '{"wynik": "POPRAWNA" lub "CZESCIOWA" lub "NIEPOPRAWNA", "komentarz": "1-2 zdania co bylo dobrze i czego brakowalo"}';
+  // Porownujemy odpowiedz studenta ze wzorcowa - prosta heurystyka + HuggingFace
+  var prompt = 'You are grading a student answer about machine learning. Reply ONLY with valid JSON, no other text.\n\n' +
+    'Question: ' + question + '\n\n' +
+    'Model answer: ' + modelAnswer + '\n\n' +
+    'Student answer: ' + userAnswer + '\n\n' +
+    'Grade the student. Reply with ONLY this JSON:\n' +
+    '{"wynik":"POPRAWNA","komentarz":"short comment"}\n' +
+    'wynik must be exactly one of: POPRAWNA, CZESCIOWA, NIEPOPRAWNA\n' +
+    'komentarz: 1 sentence in Polish about what was good or missing.';
 
   try {
-    var response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 200,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+    var response = await fetch(
+      'https://router.huggingface.co/novita/v3/openai/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer hf_demo'
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct',
+          max_tokens: 150,
+          temperature: 0.1,
+          messages: [
+            { role: 'system', content: 'You are a grading assistant. Reply only with valid JSON.' },
+            { role: 'user', content: prompt }
+          ]
+        })
+      }
+    );
+
     var data = await response.json();
-    var text = data.content && data.content[0] ? data.content[0].text : '';
-    var parsed = JSON.parse(text.trim());
-
-    document.getElementById('ai-eval-loading').style.display = 'none';
-    document.getElementById('ai-eval-result').style.display = 'block';
-
-    var verdictEl = document.getElementById('ai-eval-verdict');
-    var isGood = false;
-    if (parsed.wynik === 'POPRAWNA') {
-      verdictEl.innerHTML = '<span style="color:var(--accent1)">✓ Poprawna</span>';
-      isGood = true;
-    } else if (parsed.wynik === 'CZESCIOWA') {
-      verdictEl.innerHTML = '<span style="color:var(--accent4)">◑ Częściowa</span>';
-    } else {
-      verdictEl.innerHTML = '<span style="color:var(--accent2)">✗ Niepoprawna</span>';
+    var text = '';
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      text = data.choices[0].message.content || '';
     }
-    document.getElementById('ai-eval-text').textContent = parsed.komentarz;
 
-    // auto-score based on AI verdict
-    document.getElementById('exam-verdict').style.display = 'flex';
+    // extract JSON from response
+    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    var parsed = JSON.parse(jsonMatch[0]);
 
-    // pre-select based on AI suggestion
-    if (isGood) {
-      examAutoSuggest(true);
-    } else if (parsed.wynik === 'NIEPOPRAWNA') {
-      examAutoSuggest(false);
-    }
+    showAIResult(parsed.wynik, parsed.komentarz);
 
   } catch(e) {
-    document.getElementById('ai-eval-loading').style.display = 'none';
-    document.getElementById('ai-eval-result').style.display = 'block';
-    document.getElementById('ai-eval-verdict').innerHTML = '<span style="color:var(--muted)">⚠ Błąd połączenia z AI</span>';
-    document.getElementById('ai-eval-text').textContent = 'Oceń się samodzielnie.';
-    document.getElementById('exam-verdict').style.display = 'flex';
+    // fallback: simple keyword matching
+    fallbackEval(question, userAnswer, modelAnswer);
   }
+}
+
+function fallbackEval(question, userAnswer, modelAnswer) {
+  // prosta heurystyka oparta na wspolnych slowach kluczowych
+  var userLower = userAnswer.toLowerCase();
+  var modelWords = modelAnswer.toLowerCase()
+    .replace(/<[^>]+>/g, ' ')
+    .split(/\s+/)
+    .filter(function(w) { return w.length > 4; });
+
+  var modelUnique = modelWords.filter(function(w, i) { return modelWords.indexOf(w) === i; });
+  var matches = modelUnique.filter(function(w) { return userLower.indexOf(w) !== -1; });
+  var ratio = modelUnique.length > 0 ? matches.length / Math.min(modelUnique.length, 10) : 0;
+
+  var wynik, komentarz;
+  if (userAnswer.length < 10) {
+    wynik = 'NIEPOPRAWNA';
+    komentarz = 'Odpowiedź jest zbyt krótka lub pusta.';
+  } else if (ratio >= 0.5) {
+    wynik = 'POPRAWNA';
+    komentarz = 'Odpowiedź zawiera kluczowe pojęcia. Sprawdź wzorcową odpowiedź dla pewności.';
+  } else if (ratio >= 0.2) {
+    wynik = 'CZESCIOWA';
+    komentarz = 'Odpowiedź częściowa — brakuje niektórych kluczowych elementów.';
+  } else {
+    wynik = 'NIEPOPRAWNA';
+    komentarz = 'Odpowiedź nie zawiera kluczowych pojęć. Porównaj ze wzorcową odpowiedzią.';
+  }
+  showAIResult(wynik, komentarz, true);
+}
+
+function showAIResult(wynik, komentarz, isFallback) {
+  document.getElementById('ai-eval-loading').style.display = 'none';
+  document.getElementById('ai-eval-result').style.display = 'block';
+
+  var verdictEl = document.getElementById('ai-eval-verdict');
+  var isGood = false;
+  if (wynik === 'POPRAWNA') {
+    verdictEl.innerHTML = '<span style="color:var(--accent1)">✓ Poprawna</span>';
+    isGood = true;
+  } else if (wynik === 'CZESCIOWA') {
+    verdictEl.innerHTML = '<span style="color:var(--accent4)">◑ Częściowa</span>';
+  } else {
+    verdictEl.innerHTML = '<span style="color:var(--accent2)">✗ Niepoprawna</span>';
+  }
+
+  var note = isFallback ? ' (ocena automatyczna — sprawdź wzorcową odpowiedź)' : '';
+  document.getElementById('ai-eval-text').textContent = komentarz + note;
+  document.getElementById('exam-verdict').style.display = 'flex';
+
+  if (isGood) examAutoSuggest(true);
+  else if (wynik === 'NIEPOPRAWNA') examAutoSuggest(false);
 }
 
 function examAutoSuggest(correct) {
