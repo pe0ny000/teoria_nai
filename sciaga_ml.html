@@ -245,11 +245,20 @@
         <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent1);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em">✓ Wzorcowa odpowiedź</div>
         <div id="exam-reveal-text"></div>
       </div>
+      <!-- AI evaluation box -->
+      <div id="ai-eval-box" style="display:none;margin-top:1rem;background:rgba(110,170,255,0.06);border:1px solid rgba(110,170,255,0.25);border-radius:12px;padding:1rem">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--accent3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">🤖 Ocena AI</div>
+        <div id="ai-eval-loading" style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">Analizuję odpowiedź...</div>
+        <div id="ai-eval-result" style="display:none">
+          <div id="ai-eval-verdict" style="font-size:1rem;font-weight:800;margin-bottom:0.4rem"></div>
+          <div id="ai-eval-text" style="font-size:0.82rem;line-height:1.6;color:#c8c8d8"></div>
+        </div>
+      </div>
       <div class="exam-verdict" id="exam-verdict">
-        <div class="verdict-label">Oceń się sam:</div>
+        <div class="verdict-label">Potwierdź wynik:</div>
         <div class="verdict-btns">
-          <button class="btn btn-correct" onclick="examScore(true)">✓ Wiedziałem/am</button>
-          <button class="btn btn-wrong" onclick="examScore(false)">✗ Nie wiedziałem/am</button>
+          <button class="btn btn-correct" onclick="examScore(true)">✓ Zalicz</button>
+          <button class="btn btn-wrong" onclick="examScore(false)">✗ Nie zalicz</button>
         </div>
       </div>
     </div>
@@ -807,9 +816,11 @@ function examShow() {
   document.getElementById('exam-textarea').value = '';
   document.getElementById('exam-reveal').style.display = 'none';
   document.getElementById('exam-verdict').style.display = 'none';
+  document.getElementById('ai-eval-box').style.display = 'none';
+  document.getElementById('ai-eval-loading').style.display = 'block';
+  document.getElementById('ai-eval-result').style.display = 'none';
   document.getElementById('exam-reveal-text').innerHTML = '';
   document.getElementById('exam-submit-btn').style.display = '';
-  // score bar
   var total = examQueue.length;
   document.getElementById('exam-bar').style.width = Math.round((examIdx/total)*100)+'%';
   document.getElementById('exam-good').textContent = '✓ ' + examGood;
@@ -818,13 +829,98 @@ function examShow() {
 
 function examReveal() {
   var item = examQueue[examIdx];
+  var userAnswer = document.getElementById('exam-textarea').value.trim();
+
   document.getElementById('exam-reveal-text').innerHTML = item.a;
   document.getElementById('exam-reveal').style.display = 'block';
-  document.getElementById('exam-verdict').style.display = 'flex';
   document.getElementById('exam-submit-btn').style.display = 'none';
+  document.getElementById('ai-eval-box').style.display = 'block';
+  document.getElementById('exam-verdict').style.display = 'none';
+
+  // strip HTML tags from model answer for AI
+  var tmp = document.createElement('div');
+  tmp.innerHTML = item.a;
+  var cleanAnswer = tmp.textContent || tmp.innerText || '';
+
+  if (!userAnswer) {
+    document.getElementById('ai-eval-loading').style.display = 'none';
+    document.getElementById('ai-eval-result').style.display = 'block';
+    document.getElementById('ai-eval-verdict').innerHTML = '<span style="color:var(--accent2)">✗ Brak odpowiedzi</span>';
+    document.getElementById('ai-eval-text').textContent = 'Nie wpisałaś/eś żadnej odpowiedzi.';
+    document.getElementById('exam-verdict').style.display = 'flex';
+    return;
+  }
+
+  askAI(item.q, userAnswer, cleanAnswer);
+}
+
+async function askAI(question, userAnswer, modelAnswer) {
+  var prompt = 'Jesteś asystentem sprawdzającym odpowiedzi studenta z zakresu uczenia maszynowego i AI.\n\n' +
+    'Pytanie: ' + question + '\n\n' +
+    'Wzorcowa odpowiedź: ' + modelAnswer + '\n\n' +
+    'Odpowiedź studenta: ' + userAnswer + '\n\n' +
+    'Oceń odpowiedź studenta. Odpowiedz TYLKO w tym formacie JSON (bez żadnego innego tekstu):\n' +
+    '{"wynik": "POPRAWNA" lub "CZESCIOWA" lub "NIEPOPRAWNA", "komentarz": "1-2 zdania co bylo dobrze i czego brakowalo"}';
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await response.json();
+    var text = data.content && data.content[0] ? data.content[0].text : '';
+    var parsed = JSON.parse(text.trim());
+
+    document.getElementById('ai-eval-loading').style.display = 'none';
+    document.getElementById('ai-eval-result').style.display = 'block';
+
+    var verdictEl = document.getElementById('ai-eval-verdict');
+    var isGood = false;
+    if (parsed.wynik === 'POPRAWNA') {
+      verdictEl.innerHTML = '<span style="color:var(--accent1)">✓ Poprawna</span>';
+      isGood = true;
+    } else if (parsed.wynik === 'CZESCIOWA') {
+      verdictEl.innerHTML = '<span style="color:var(--accent4)">◑ Częściowa</span>';
+    } else {
+      verdictEl.innerHTML = '<span style="color:var(--accent2)">✗ Niepoprawna</span>';
+    }
+    document.getElementById('ai-eval-text').textContent = parsed.komentarz;
+
+    // auto-score based on AI verdict
+    document.getElementById('exam-verdict').style.display = 'flex';
+
+    // pre-select based on AI suggestion
+    if (isGood) {
+      examAutoSuggest(true);
+    } else if (parsed.wynik === 'NIEPOPRAWNA') {
+      examAutoSuggest(false);
+    }
+
+  } catch(e) {
+    document.getElementById('ai-eval-loading').style.display = 'none';
+    document.getElementById('ai-eval-result').style.display = 'block';
+    document.getElementById('ai-eval-verdict').innerHTML = '<span style="color:var(--muted)">⚠ Błąd połączenia z AI</span>';
+    document.getElementById('ai-eval-text').textContent = 'Oceń się samodzielnie.';
+    document.getElementById('exam-verdict').style.display = 'flex';
+  }
+}
+
+function examAutoSuggest(correct) {
+  // visually highlight the suggested button but don't auto-click
+  var btns = document.querySelectorAll('#exam-verdict .verdict-btns .btn');
+  btns.forEach(function(b) { b.style.opacity = '0.4'; });
+  if (correct) btns[0].style.opacity = '1';
+  else btns[1].style.opacity = '1';
 }
 
 function examScore(correct) {
+  // reset button opacity
+  document.querySelectorAll('#exam-verdict .verdict-btns .btn').forEach(function(b) { b.style.opacity = '1'; });
   if (correct) { examGood++; }
   else { examBad++; examMissed.push(examQueue[examIdx]); }
   examIdx++;
