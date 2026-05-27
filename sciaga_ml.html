@@ -81,6 +81,7 @@
   .s4{--accent-color:var(--accent4)}.s5{--accent-color:var(--accent5)}.s6{--accent-color:var(--accent6)}
   .s7{--accent-color:#ff9f6e}.s8{--accent-color:#6effd4}.s9{--accent-color:#ff6ecc}
   .s10{--accent-color:#ffe46e}.s11{--accent-color:#6eb5ff}.s12{--accent-color:#b5ff6e}
+  .s13{--accent-color:#ff9f6e}.s14{--accent-color:#e46eff}
 
   /* LEARN MODE */
   #learn-mode,#exam-mode{display:none;max-width:700px;margin:0 auto}
@@ -480,6 +481,52 @@ var data = [
       a:"<ul><li>K-Means wymaga podania k z gory — HC nie, liczbe klastrow wybieramy po zbudowaniu dendrogramu</li><li>K-Means daje plaski podzial bez hierarchii — HC daje hierarchie w formie dendrogramu</li><li>K-Means szybszy — HC wolniejszy O(n^2)</li></ul>" },
     { q:"W jaki sposob poprawiana jest jakosc wynikow lasow losowych?",
       a:"Przez dwa mechanizmy:<br>1. Bootstrap — kazde drzewo trenowane na losowym podzbiorze danych<br>2. Losowe atrybuty — przy kazdym podziale losujemy m ≈ sqrt(p) atrybutow<br>Efekt: drzewa zdekoreolowane, bledy sie znoszą, wynik po glosowaniu lepszy niz pojedyncze drzewo." }
+  ]},
+  { id:"s14", icon:"📋", title:"Dodatkowe z kolokwium — brakujące pytania", qs:[
+    { q:"Co to jest reprezentacja lokalna w sieci neuronowej?",
+      a:"Kazdy neuron odpowiada za dokładnie jedną klasę lub cechę. Wyjście = 1 oznacza przynależność do tej klasy, 0 — brak. Zaleta: interpretowalność. Wada: wymaga tylu neuronów ile klas — nieefektywne dla dużych zbiorów." },
+    { q:"Co to jest stratyfikacja?",
+      a:"Technika podziału danych na zbiory treningowy i testowy tak, aby proporcje klas były zachowane w obu zbiorach. Np. jeśli 30% danych to klasa A, po stratyfikacji zbiór treningowy i testowy też mają ~30% klasy A. Zapobiega sytuacji gdy jedna klasa trafia głównie do jednego zbioru." },
+    { q:"Wzór na prawdopodobieństwo warunkowe (wzór Bayesa)",
+      a:"<div class='formula'>P(Y=y | X=x) = P(X=x | Y=y) * P(Y=y) / P(X=x)</div>P(Y|X) — prawdopodobieństwo klasy y pod warunkiem obserwacji x.<br>P(X|Y) — wiarygodność: jak prawdopodobne jest x dla klasy y.<br>P(Y) — prawdopodobieństwo a priori klasy y." },
+    { q:"Opisz 3 metody oceny podziałów drzew decyzyjnych",
+      a:"<ul><li><strong>Entropia</strong>: H = -Σ p*log2(p) — mierzy nieczystość; wybieramy atrybut maksymalizujący zysk informacji</li><li><strong>Indeks Giniego</strong>: G = 1 - Σ p² — alternatywa dla entropii, szybszy obliczeniowo</li><li><strong>Ułamek błędnej klasyfikacji</strong>: 1 - max(p) — najprostszy, ale mniej wrażliwy</li></ul>" },
+    { q:"Wzór na wagi: w = w + alfa*(d-y)*x(1-y^2)",
+      a:"To reguła aktualizacji wag dla perceptronu z funkcją aktywacji bipolarną (tangens hiperboliczny).<div class='formula'>w' = w + alfa * (d - y) * x * (1 - y^2)</div>Składnik (1-y²) to pochodna funkcji aktywacji bipolarnej — niezbędny przy backpropagation dla neuronów ciągłych." },
+    { q:"Pochodna funkcji sigmoidalnej — wzór",
+      a:"Funkcja sigmoidalna: f(net) = 1/(1+e^(-net))<div class='formula'>f'(net) = f(net) * (1 - f(net))</div>Czyli pochodna sigmoidalnej to iloczyn wartości funkcji i jej dopełnienia do 1. Przydatne przy backpropagation." },
+    { q:"Pochodna funkcji sinusoidalnej — wzór",
+      a:"Funkcja sinusoidalna: f(net) = sin(net)<div class='formula'>f'(net) = cos(net)</div>Rzadko stosowana jako funkcja aktywacji w praktyce — może dawać ujemne wartości i ma wiele ekstremów lokalnych." },
+    { q:"Podaj 4 metody łączenia klastrów w grupowaniu hierarchicznym",
+      a:"<ul><li><strong>Single linkage (min)</strong>: minimalna odległość między parą punktów z różnych klastrów</li><li><strong>Complete linkage (max)</strong>: maksymalna odległość między parą punktów</li><li><strong>Average linkage</strong>: średnia odległość między wszystkimi parami punktów</li><li><strong>Centroid linkage</strong>: odległość między centroidami klastrów</li></ul>" },
+    { q:"Co to jest wygładzanie atrybutów i kiedy się je stosuje?",
+      a:"Wygładzanie (smoothing) stosuje się w naiwnym Bayesie gdy atrybut nie wystąpił w danych treningowych dla danej klasy — P=0 zerowałoby cały iloczyn. Wygładzanie Laplace'a: dodaj 1 do licznika i liczbę możliwych wartości do mianownika. P nigdy nie równa się 0." },
+    { q:"Co to jest przeciążenie (overfitting)? Czym różni się od przetrenowania?",
+      a:"Przeciążenie i przetrenowanie to synonimy — model zbyt dopasowany do danych treningowych. Niski błąd treningowy, wysoki testowy. Model zapamiętał dane zamiast nauczyć się wzorców. Rozwiązania: pruning, regularyzacja, więcej danych, walidacja krzyżowa." },
+    { q:"Jakich danych używa się w naiwnym Bayesie — tylko nominalne czy też inne?",
+      a:"Klasyczny naiwny Bayes działa natywnie na atrybutach <strong>nominalnych</strong> (kategorie). Dla atrybutów numerycznych stosuje się rozszerzenia: Gaussian Naive Bayes (zakłada rozkład normalny) lub dyskretyzację wartości ciągłych na przedziały." },
+    { q:"Jakie wartości może przyjmować alfa (parametr uczący)?",
+      a:"Alfa (learning rate, stała uczenia) to parametr z przedziału <strong>(0, 1)</strong>.<div class='formula'>alfa nalezy do (0, 1)</div>Zbyt duże alfa — oscylacje, brak zbieżności. Zbyt małe alfa — bardzo wolna nauka. Typowo: 0.01–0.3. Często maleje w czasie uczenia." },
+    { q:"Wzór na obliczenie wyjścia perceptronu",
+      a:"<div class='formula'>net = W * X = Σ wi * xi\ny = f(net)</div>Gdzie f to funkcja aktywacji (np. progowa: y=1 jeśli net≥Θ, else 0). Net to suma ważona wejść, y to końcowe wyjście perceptronu." },
+    { q:"Wzór na entropię",
+      a:"<div class='formula'>H(X) = -Σ p(xi) * log2(p(xi))</div>Gdzie p(xi) to prawdopodobieństwo klasy xi. H=0 gdy wszystkie przykłady należą do jednej klasy (czysto). H maksymalna gdy klasy równoliczne. Używana jako miara nieczystości przy budowie drzew decyzyjnych." },
+    { q:"Wyjaśnij koncept black box",
+      a:"Model black box to model gdzie nie możemy zrozumieć jak dochodzi do predykcji — wiedza ukryta w wagach/parametrach. Przykłady: sieci neuronowe, lasy losowe. Przeciwieństwo: modele interpretowalne (drzewa, reguły decyzyjne). Problem gdy ważna jest interpretowalność (medycyna, prawo)." },
+    { q:"Problem optymalizacji rozwiązywany przez k-means — podaj wzór",
+      a:"K-means minimalizuje sumę kwadratów odległości punktów od centroidów ich klastrów:<div class='formula'>J = Σk Σ(xi w klastrze k) ||xi - ck||²</div>Gdzie ck to centroid klastra k. Jest to problem NP-trudny — k-means znajduje optimum lokalne, nie globalne." },
+    { q:"Podaj 3 przykłady sytuacji do których można wykorzystać klasyfikator",
+      a:"<ul><li>Filtrowanie spamu — email: spam / nie-spam</li><li>Diagnoza medyczna — choroba: tak / nie</li><li>Rozpoznawanie obrazów — zdjęcie: kot / pies / ptak</li><li>Wykrywanie oszustw — transakcja: fraudulentna / normalna</li></ul>" },
+    { q:"Czym charakteryzuje się metoda brute force?",
+      a:"Sprawdza <strong>wszystkie możliwe rozwiązania</strong> i zwraca optymalne. Zawsze znajduje optimum globalne. Wada: złożoność obliczeniowa niepraktycznie wysoka dla dużych danych — O(2^n) dla plecaka, O(n!) dla TSP. Stosowana gdy przestrzeń rozwiązań jest mała." },
+    { q:"Podaj 4 przykłady funkcji aktywacji",
+      a:"<div class='formula'>Progowa:      y = 1 jeśli net > 0, else 0\nSignum:       y = sign(net) => {-1, 1}\nSigmoidalna:  y = 1 / (1 + e^(-net))\nLiniowa:      y = net</div>" },
+    { q:"Precyzja — wady i ograniczenia",
+      a:"Precyzja = TP/(TP+FP). Wady: ignoruje False Negatives — nie mówi ile pozytywnych przypadków zostało pominięte. Przy niezbalansowanych danych model przewidujący zawsze 'nie' może mieć wysoką precyzję. Nie nadaje się jako jedyna miara — używać razem z pełnością (F-miara)." },
+    { q:"Pełność (Recall) — wady i ograniczenia",
+      a:"Pełność = TP/(TP+FN). Wady: ignoruje False Positives — model przewidujący zawsze 'tak' ma pełność=1. Sprzeczna z precyzją — poprawa jednej pogarsza drugą. Dlatego używa się F-miary łączącej obie: F = 2*P*R/(P+R)." },
+    { q:"Czym różni się perceptron dyskretny od ciągłego?",
+      a:"Dyskretny: wyjście y ∈ {0,1} lub {-1,1} — funkcja progowa lub signum. Nie jest różniczkowalny.<br>Ciągły: wyjście y ∈ [0,1] lub [-1,1] — sigmoidalna lub liniowa. Jest różniczkowalny — niezbędny dla backpropagation i uczenia gradientowego." }
   ]}
 ];
 
