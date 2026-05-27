@@ -189,6 +189,13 @@
     <div class="learn-btns" id="learn-btns">
       <button class="btn btn-primary" id="learn-reveal-btn" onclick="learnReveal()">Pokaż odpowiedź</button>
       <button class="btn btn-skip" onclick="learnSkip()">Pomiń →</button>
+      <button class="btn btn-ghost" id="autoplay-btn" onclick="toggleAutoplay()">▶ Auto 15s</button>
+    </div>
+    <div id="autoplay-bar-wrap" style="display:none;margin-top:0.75rem">
+      <div style="height:3px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div id="autoplay-bar" style="height:100%;width:100%;background:var(--accent4);border-radius:3px;transition:width linear"></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.3rem" id="autoplay-label">pokazuję odpowiedź za <span id="autoplay-count">15</span>s</div>
     </div>
     <div class="learn-btns" id="learn-after-btns" style="display:none">
       <button class="btn btn-correct" onclick="learnNext(true)">✓ Umiem</button>
@@ -245,11 +252,20 @@
         <div style="font-family:var(--mono);font-size:0.65rem;color:var(--accent1);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em">✓ Wzorcowa odpowiedź</div>
         <div id="exam-reveal-text"></div>
       </div>
+      <!-- AI evaluation box -->
+      <div id="ai-eval-box" style="display:none;margin-top:1rem;background:rgba(110,170,255,0.06);border:1px solid rgba(110,170,255,0.25);border-radius:12px;padding:1rem">
+        <div style="font-family:var(--mono);font-size:0.62rem;color:var(--accent3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">🤖 Ocena AI</div>
+        <div id="ai-eval-loading" style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">Analizuję odpowiedź...</div>
+        <div id="ai-eval-result" style="display:none">
+          <div id="ai-eval-verdict" style="font-size:1rem;font-weight:800;margin-bottom:0.4rem"></div>
+          <div id="ai-eval-text" style="font-size:0.82rem;line-height:1.6;color:#c8c8d8"></div>
+        </div>
+      </div>
       <div class="exam-verdict" id="exam-verdict">
-        <div class="verdict-label">Oceń się sam:</div>
+        <div class="verdict-label">Potwierdź wynik:</div>
         <div class="verdict-btns">
-          <button class="btn btn-correct" onclick="examScore(true)">✓ Wiedziałem/am</button>
-          <button class="btn btn-wrong" onclick="examScore(false)">✗ Nie wiedziałem/am</button>
+          <button class="btn btn-correct" onclick="examScore(true)">✓ Zalicz</button>
+          <button class="btn btn-wrong" onclick="examScore(false)">✗ Nie zalicz</button>
         </div>
       </div>
     </div>
@@ -683,6 +699,85 @@ function learnBuild() {
   learnShow();
 }
 
+/* ===================== AUTOPLAY ===================== */
+var autoplayOn = false;
+var autoplayTimer = null;
+var autoplayInterval = null;
+var autoplaySeconds = 15;
+var autoplayPhase = 'question'; // 'question' or 'answer'
+
+function toggleAutoplay() {
+  autoplayOn = !autoplayOn;
+  var btn = document.getElementById('autoplay-btn');
+  if (autoplayOn) {
+    btn.textContent = '⏹ Stop auto';
+    btn.style.borderColor = 'var(--accent4)';
+    btn.style.color = 'var(--accent4)';
+    startAutoplayPhase('question');
+  } else {
+    btn.textContent = '▶ Auto 15s';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    stopAutoplay();
+  }
+}
+
+function stopAutoplay() {
+  clearTimeout(autoplayTimer);
+  clearInterval(autoplayInterval);
+  document.getElementById('autoplay-bar-wrap').style.display = 'none';
+}
+
+function startAutoplayPhase(phase) {
+  clearTimeout(autoplayTimer);
+  clearInterval(autoplayInterval);
+  if (!autoplayOn) return;
+
+  autoplayPhase = phase;
+  var wrap = document.getElementById('autoplay-bar-wrap');
+  var bar = document.getElementById('autoplay-bar');
+  var count = document.getElementById('autoplay-count');
+  var label = document.getElementById('autoplay-label');
+
+  wrap.style.display = 'block';
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+
+  var remaining = autoplaySeconds;
+  count.textContent = remaining;
+
+  if (phase === 'question') {
+    label.innerHTML = 'pokazuję odpowiedź za <span id="autoplay-count">' + remaining + '</span>s';
+  } else {
+    label.innerHTML = 'następne pytanie za <span id="autoplay-count">' + remaining + '</span>s';
+  }
+
+  // animate bar
+  setTimeout(function() {
+    bar.style.transition = 'width ' + autoplaySeconds + 's linear';
+    bar.style.width = '0%';
+  }, 50);
+
+  // countdown
+  autoplayInterval = setInterval(function() {
+    remaining--;
+    var el = document.getElementById('autoplay-count');
+    if (el) el.textContent = remaining;
+  }, 1000);
+
+  // action after timer
+  autoplayTimer = setTimeout(function() {
+    clearInterval(autoplayInterval);
+    if (!autoplayOn) return;
+    if (phase === 'question') {
+      learnReveal();
+      startAutoplayPhase('answer');
+    } else {
+      learnNext(false); // mark as not known in auto mode — user can override
+    }
+  }, autoplaySeconds * 1000);
+}
+
 function learnShow() {
   if (learnIdx >= learnQueue.length) { learnFinish(); return; }
   var item = learnQueue[learnIdx];
@@ -693,24 +788,25 @@ function learnShow() {
   document.getElementById('learn-q').textContent = item.q;
   document.getElementById('learn-a').innerHTML = item.a;
   document.getElementById('learn-a').style.display = 'none';
-  // badge: sekcja + historia
   var hist = '';
-  if (r) {
-    hist = '  •  ✓ ' + r.ok + '  ✗ ' + r.fail;
-  }
+  if (r) { hist = '  •  ✓ ' + r.ok + '  ✗ ' + r.fail; }
   document.getElementById('learn-badge').textContent = item.sec + hist;
   document.getElementById('learn-btns').style.display = 'flex';
   document.getElementById('learn-after-btns').style.display = 'none';
+  document.getElementById('autoplay-bar-wrap').style.display = 'none';
   var pct = learnTotal > 0 ? Math.round((learnIdx/learnTotal)*100) : 0;
   document.getElementById('learn-progress').textContent =
     (learnIdx+1) + ' / ' + learnTotal + '  •  tej sesji: ✓ ' + learnCorrect;
   document.getElementById('learn-bar').style.width = pct + '%';
+  if (autoplayOn) startAutoplayPhase('question');
 }
 
 function learnReveal() {
   document.getElementById('learn-a').style.display = 'block';
   document.getElementById('learn-btns').style.display = 'none';
   document.getElementById('learn-after-btns').style.display = 'flex';
+  document.getElementById('autoplay-bar-wrap').style.display = 'none';
+  if (autoplayOn) startAutoplayPhase('answer');
 }
 
 function learnNext(correct) {
@@ -807,9 +903,11 @@ function examShow() {
   document.getElementById('exam-textarea').value = '';
   document.getElementById('exam-reveal').style.display = 'none';
   document.getElementById('exam-verdict').style.display = 'none';
+  document.getElementById('ai-eval-box').style.display = 'none';
+  document.getElementById('ai-eval-loading').style.display = 'block';
+  document.getElementById('ai-eval-result').style.display = 'none';
   document.getElementById('exam-reveal-text').innerHTML = '';
   document.getElementById('exam-submit-btn').style.display = '';
-  // score bar
   var total = examQueue.length;
   document.getElementById('exam-bar').style.width = Math.round((examIdx/total)*100)+'%';
   document.getElementById('exam-good').textContent = '✓ ' + examGood;
@@ -818,13 +916,145 @@ function examShow() {
 
 function examReveal() {
   var item = examQueue[examIdx];
+  var userAnswer = document.getElementById('exam-textarea').value.trim();
+
   document.getElementById('exam-reveal-text').innerHTML = item.a;
   document.getElementById('exam-reveal').style.display = 'block';
-  document.getElementById('exam-verdict').style.display = 'flex';
   document.getElementById('exam-submit-btn').style.display = 'none';
+  document.getElementById('ai-eval-box').style.display = 'block';
+  document.getElementById('exam-verdict').style.display = 'none';
+
+  // strip HTML tags from model answer for AI
+  var tmp = document.createElement('div');
+  tmp.innerHTML = item.a;
+  var cleanAnswer = tmp.textContent || tmp.innerText || '';
+
+  if (!userAnswer) {
+    document.getElementById('ai-eval-loading').style.display = 'none';
+    document.getElementById('ai-eval-result').style.display = 'block';
+    document.getElementById('ai-eval-verdict').innerHTML = '<span style="color:var(--accent2)">✗ Brak odpowiedzi</span>';
+    document.getElementById('ai-eval-text').textContent = 'Nie wpisałaś/eś żadnej odpowiedzi.';
+    document.getElementById('exam-verdict').style.display = 'flex';
+    return;
+  }
+
+  askAI(item.q, userAnswer, cleanAnswer);
+}
+
+async function askAI(question, userAnswer, modelAnswer) {
+  // Porownujemy odpowiedz studenta ze wzorcowa - prosta heurystyka + HuggingFace
+  var prompt = 'You are grading a student answer about machine learning. Reply ONLY with valid JSON, no other text.\n\n' +
+    'Question: ' + question + '\n\n' +
+    'Model answer: ' + modelAnswer + '\n\n' +
+    'Student answer: ' + userAnswer + '\n\n' +
+    'Grade the student. Reply with ONLY this JSON:\n' +
+    '{"wynik":"POPRAWNA","komentarz":"short comment"}\n' +
+    'wynik must be exactly one of: POPRAWNA, CZESCIOWA, NIEPOPRAWNA\n' +
+    'komentarz: 1 sentence in Polish about what was good or missing.';
+
+  try {
+    var response = await fetch(
+      'https://router.huggingface.co/novita/v3/openai/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer hf_demo'
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct',
+          max_tokens: 150,
+          temperature: 0.1,
+          messages: [
+            { role: 'system', content: 'You are a grading assistant. Reply only with valid JSON.' },
+            { role: 'user', content: prompt }
+          ]
+        })
+      }
+    );
+
+    var data = await response.json();
+    var text = '';
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      text = data.choices[0].message.content || '';
+    }
+
+    // extract JSON from response
+    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    var parsed = JSON.parse(jsonMatch[0]);
+
+    showAIResult(parsed.wynik, parsed.komentarz);
+
+  } catch(e) {
+    // fallback: simple keyword matching
+    fallbackEval(question, userAnswer, modelAnswer);
+  }
+}
+
+function fallbackEval(question, userAnswer, modelAnswer) {
+  // prosta heurystyka oparta na wspolnych slowach kluczowych
+  var userLower = userAnswer.toLowerCase();
+  var modelWords = modelAnswer.toLowerCase()
+    .replace(/<[^>]+>/g, ' ')
+    .split(/\s+/)
+    .filter(function(w) { return w.length > 4; });
+
+  var modelUnique = modelWords.filter(function(w, i) { return modelWords.indexOf(w) === i; });
+  var matches = modelUnique.filter(function(w) { return userLower.indexOf(w) !== -1; });
+  var ratio = modelUnique.length > 0 ? matches.length / Math.min(modelUnique.length, 10) : 0;
+
+  var wynik, komentarz;
+  if (userAnswer.length < 10) {
+    wynik = 'NIEPOPRAWNA';
+    komentarz = 'Odpowiedź jest zbyt krótka lub pusta.';
+  } else if (ratio >= 0.5) {
+    wynik = 'POPRAWNA';
+    komentarz = 'Odpowiedź zawiera kluczowe pojęcia. Sprawdź wzorcową odpowiedź dla pewności.';
+  } else if (ratio >= 0.2) {
+    wynik = 'CZESCIOWA';
+    komentarz = 'Odpowiedź częściowa — brakuje niektórych kluczowych elementów.';
+  } else {
+    wynik = 'NIEPOPRAWNA';
+    komentarz = 'Odpowiedź nie zawiera kluczowych pojęć. Porównaj ze wzorcową odpowiedzią.';
+  }
+  showAIResult(wynik, komentarz, true);
+}
+
+function showAIResult(wynik, komentarz, isFallback) {
+  document.getElementById('ai-eval-loading').style.display = 'none';
+  document.getElementById('ai-eval-result').style.display = 'block';
+
+  var verdictEl = document.getElementById('ai-eval-verdict');
+  var isGood = false;
+  if (wynik === 'POPRAWNA') {
+    verdictEl.innerHTML = '<span style="color:var(--accent1)">✓ Poprawna</span>';
+    isGood = true;
+  } else if (wynik === 'CZESCIOWA') {
+    verdictEl.innerHTML = '<span style="color:var(--accent4)">◑ Częściowa</span>';
+  } else {
+    verdictEl.innerHTML = '<span style="color:var(--accent2)">✗ Niepoprawna</span>';
+  }
+
+  var note = isFallback ? ' (ocena automatyczna — sprawdź wzorcową odpowiedź)' : '';
+  document.getElementById('ai-eval-text').textContent = komentarz + note;
+  document.getElementById('exam-verdict').style.display = 'flex';
+
+  if (isGood) examAutoSuggest(true);
+  else if (wynik === 'NIEPOPRAWNA') examAutoSuggest(false);
+}
+
+function examAutoSuggest(correct) {
+  // visually highlight the suggested button but don't auto-click
+  var btns = document.querySelectorAll('#exam-verdict .verdict-btns .btn');
+  btns.forEach(function(b) { b.style.opacity = '0.4'; });
+  if (correct) btns[0].style.opacity = '1';
+  else btns[1].style.opacity = '1';
 }
 
 function examScore(correct) {
+  // reset button opacity
+  document.querySelectorAll('#exam-verdict .verdict-btns .btn').forEach(function(b) { b.style.opacity = '1'; });
   if (correct) { examGood++; }
   else { examBad++; examMissed.push(examQueue[examIdx]); }
   examIdx++;
